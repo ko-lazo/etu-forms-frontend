@@ -189,11 +189,10 @@ function formatDate(value: string | null) {
           <UFormField
             label="Название"
             required
-            hint="Чтобы потом узнать, для чего этот токен"
           >
             <UInput
               v-model="newTokenName"
-              placeholder="Например, CI pipeline"
+              placeholder="Например, Корпоративный сайт"
               class="w-full"
               @keyup.enter="createToken"
             />
