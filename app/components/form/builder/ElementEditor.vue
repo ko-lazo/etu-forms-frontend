@@ -4,6 +4,7 @@ import { metaFor } from './element-meta.ts'
 
 const props = defineProps<{
   element: FormElement | null
+  availableFields: FormElement[]
 }>()
 
 const emit = defineEmits<{
@@ -37,6 +38,10 @@ watch(() => props.element, (element) => {
 
   draft.value = clone
 }, { immediate: true })
+
+const conditionFields = computed(() =>
+  props.availableFields.filter(f => f.name !== draft.value?.name)
+)
 
 const meta = computed(() => (draft.value ? metaFor(draft.value.type) : null))
 
@@ -220,6 +225,13 @@ function save() {
             />
           </UFormField>
         </template>
+
+        <USeparator />
+
+        <FormBuilderConditionEditor
+          v-model="draft.visibleIf"
+          :available-fields="conditionFields"
+        />
       </div>
     </template>
 

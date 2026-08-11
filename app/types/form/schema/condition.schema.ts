@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const conditionOperatorSchema = z.enum([
+export const conditionOperatorSchema = z.enum([
   'equals',
   'notEquals',
   'greaterThan',
@@ -13,7 +13,9 @@ const conditionOperatorSchema = z.enum([
   'notEmpty'
 ])
 
-const conditionRuleSchema = z.object({
+export type ConditionOperator = z.infer<typeof conditionOperatorSchema>
+
+export const conditionRuleSchema = z.object({
   field: z
     .string()
     .min(1)
@@ -26,6 +28,8 @@ const conditionRuleSchema = z.object({
     .union([z.string(), z.number(), z.boolean(), z.array(z.string())])
     .optional()
 })
+
+export type ConditionRule = z.infer<typeof conditionRuleSchema>
 
 export type Condition
   = | z.infer<typeof conditionRuleSchema>
