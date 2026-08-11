@@ -52,12 +52,12 @@ async function submit(
 
       <UAuthForm
         title="Добро пожаловать"
-        description="Войдите, чтобы управлять своими формами."
+        description="Вход в систему управления формами"
         :fields="[
           {
             name: 'email',
             type: 'email',
-            label: 'Электронная почта',
+            label: 'Email',
             placeholder: 'you@example.com',
             required: true,
             autocomplete: 'email'
@@ -73,7 +73,9 @@ async function submit(
         ]"
         :loading="loading"
         :disabled="loading"
-        submit-button="Войти"
+        :submit="{
+          label: 'Войти',
+        }"
         @submit="submit"
       />
 
