@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import type { Form } from '~/types/form/api'
+import type { Form } from '~/types/form/form'
 import { useFormsApi } from '~/api/form.ts'
 
-definePageMeta({ layout: 'dashboard', title: 'Формы' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы' })
+
+const { setBreadcrumbs } = usePageHeader()
+setBreadcrumbs([{ label: 'Формы', icon: 'i-lucide-file-text' }])
 
 const formsApi = useFormsApi()
 

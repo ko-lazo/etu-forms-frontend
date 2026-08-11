@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/api/form.ts'
 
-definePageMeta({ layout: 'dashboard', title: 'Формы: создание' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы: создание' })
+
+const { setBreadcrumbs } = usePageHeader()
+setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: 'Новая форма' }])
 
 const formsApi = useFormsApi()
 const toast = useToast()

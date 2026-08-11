@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-const route = useRoute()
+const router = useRouter()
 const { user, logout } = useAuth()
+const { breadcrumbs, backTo } = usePageHeader()
 
 const navigation: NavigationMenuItem[] = [
   { label: 'Формы', icon: 'i-lucide-file-text', to: '/forms' },
   { label: 'API токены', icon: 'i-lucide-key-round', to: '/tokens' }
 ]
-
-const title = computed(() => (route.meta.title as string | undefined) ?? 'etu-forms')
 
 function handleLogout() {
   logout()
@@ -23,6 +22,14 @@ const userMenuItems = [
     onClick: handleLogout
   }
 ]
+
+function goBack() {
+  if (backTo.value) {
+    router.push(backTo.value)
+  } else {
+    router.back()
+  }
+}
 </script>
 
 <template>
@@ -42,10 +49,13 @@ const userMenuItems = [
           to="/"
           class="flex items-center gap-2 overflow-hidden"
         >
+<!--          <AppLogo class="h-5 w-auto shrink-0 text-primary" />-->
           <span
             v-if="!collapsed"
             class="font-semibold truncate"
-          >etu-forms</span>
+          >
+            etu-forms
+          </span>
         </NuxtLink>
       </template>
 
@@ -77,9 +87,25 @@ const userMenuItems = [
 
     <UDashboardPanel>
       <template #header>
-        <UDashboardNavbar :title="title">
+        <UDashboardNavbar>
           <template #leading>
             <UDashboardSidebarCollapse />
+            <UButton
+              v-if="backTo"
+              icon="i-lucide-arrow-left"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              class="ms-1"
+              @click="goBack"
+            />
+          </template>
+
+          <template #title>
+            <UBreadcrumb
+              v-if="breadcrumbs.length"
+              :items="breadcrumbs"
+            />
           </template>
 
           <template #right>

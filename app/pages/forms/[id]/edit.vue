@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/api/form.ts'
 
-definePageMeta({ layout: 'dashboard', title: 'Формы: редактирование' })
+definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы: редактирование' })
 
 const route = useRoute()
 const formId = route.params.id as string
@@ -9,6 +9,9 @@ const formId = route.params.id as string
 const formsApi = useFormsApi()
 const toast = useToast()
 const saving = ref(false)
+
+const { setBreadcrumbs } = usePageHeader()
+setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: 'Загрузка...' }])
 
 const { data: form, status, error } = await useAsyncData(
   `form-${formId}`,
