@@ -85,12 +85,13 @@ function onFileChange(event: Event) {
     />
 
     <div v-else-if="element.type === 'file'">
-      <input
+      <UInput
         type="file"
         multiple
-        class="block w-full cursor-pointer text-sm text-muted file:me-3 file:rounded-md file:border-0 file:bg-primary file:px-3 file:py-1.5 file:font-medium"
+        size="lg"
+        class="w-full"
         @change="onFileChange"
-      >
+      />
       <p class="mt-1 text-xs text-muted">
         Файлы прикладываются именами - реальная загрузка на сервер пока не подключена.
       </p>
