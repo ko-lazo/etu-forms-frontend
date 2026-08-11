@@ -31,5 +31,11 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  fonts: {
+    families: [
+      { name: 'Manrope', provider: 'google', subsets: ['cyrillic', 'cyrillic-ext', 'latin', 'latin-ext'], weights: [400, 500, 600, 700, 800] }
+    ]
   }
 })
