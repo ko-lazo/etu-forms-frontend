@@ -6,7 +6,7 @@ export function createEmptyFormEditorModel(): FormEditorModel {
     title: '',
     schema: {
       pages: [
-        { name: 'page1', title: 'Page 1', elements: [] }
+        { name: 'page1', title: 'Страница 1', elements: [] }
       ]
     },
     settings: {}
