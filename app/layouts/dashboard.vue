@@ -5,8 +5,8 @@ const route = useRoute()
 const { user, logout } = useAuth()
 
 const navigation: NavigationMenuItem[] = [
-  { label: 'Forms', icon: 'i-lucide-file-text', to: '/forms' },
-  { label: 'API tokens', icon: 'i-lucide-key-round', to: '/tokens' }
+  { label: 'Формы', icon: 'i-lucide-file-text', to: '/forms' },
+  { label: 'API токены', icon: 'i-lucide-key-round', to: '/tokens' }
 ]
 
 const title = computed(() => (route.meta.title as string | undefined) ?? 'etu-forms')
