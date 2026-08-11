@@ -20,11 +20,21 @@ const { data: form, status, error } = await useAsyncData(
 
 const model = ref(form.value ? formToEditorModel(form.value) : null)
 
+const formStatus = computed<'draft' | 'published' | 'archived'>(() => {
+  if (!form.value) return 'draft'
+  if (form.value.archivedAt) return 'archived'
+  if (form.value.publishedAt) return 'published'
+  return 'draft'
+})
+
 watch(form, (value) => {
   if (value && !model.value) {
     model.value = formToEditorModel(value)
   }
-})
+  if (value) {
+    setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: value.title }])
+  }
+}, { immediate: true })
 
 async function save() {
   if (!model.value) return
@@ -38,6 +48,28 @@ async function save() {
   } finally {
     saving.value = false
   }
+}
+
+function notImplemented() {
+  toast.add({
+    title: 'Soon',
+    color: 'neutral'
+  })
+}
+
+const publicUrl = computed(() => {
+  if (import.meta.server) return ''
+  return `${window.location.origin}/f/${formId}`
+})
+
+const copied = ref(false)
+
+async function copyPublicUrl() {
+  await navigator.clipboard.writeText(publicUrl.value)
+  copied.value = true
+  setTimeout(() => {
+    copied.value = false
+  }, 2000)
 }
 </script>
 
@@ -60,11 +92,35 @@ async function save() {
       :description="error.message"
     />
 
-    <FormBuilderMain
-      v-else-if="model"
-      v-model="model"
-      :saving="saving"
-      @submit="save"
-    />
+    <template v-else-if="model">
+      <div class="mb-6 flex items-center justify-between gap-3 rounded-lg border border-default bg-default p-3">
+        <div class="flex min-w-0 items-center gap-2 text-sm">
+          <UIcon
+            name="i-lucide-globe"
+            class="size-4 shrink-0 text-muted"
+          />
+          <span class="truncate text-muted">Публичная ссылка:</span>
+          <code class="truncate">{{ publicUrl }}</code>
+        </div>
+        <UButton
+          :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
+          color="neutral"
+          variant="subtle"
+          size="sm"
+          @click="copyPublicUrl"
+        >
+          {{ copied ? 'Скопировано' : 'Копировать' }}
+        </UButton>
+      </div>
+
+      <FormBuilderMain
+        v-model="model"
+        :saving="saving"
+        :status="formStatus"
+        @submit="save"
+        @publish="notImplemented"
+        @archive="notImplemented"
+      />
+    </template>
   </UContainer>
 </template>

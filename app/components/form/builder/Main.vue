@@ -8,32 +8,25 @@ const model = defineModel<{
   schema: { pages: FormPage[] }
 }>({ required: true })
 
-defineProps<{
+const props = defineProps<{
   saving?: boolean
+  status?: 'draft' | 'published' | 'archived'
 }>()
 
 const emit = defineEmits<{
   submit: []
+  publish: []
+  archive: []
 }>()
 
 const activePageIndex = ref(0)
-
-const activePageTabValue = computed({
-  get: () => String(activePageIndex.value),
-  set: (value: string) => {
-    activePageIndex.value = Number(value)
-  }
-})
 
 const activePage = computed<FormPage>(() => {
   return model.value.schema.pages[activePageIndex.value] ?? model.value.schema.pages[0]!
 })
 
-const pageTabs = computed(() =>
-  model.value.schema.pages.map((page, index) => ({
-    label: page.title || page.name,
-    value: String(index)
-  }))
+const allFields = computed<FormElement[]>(() =>
+  model.value.schema.pages.flatMap(page => page.elements)
 )
 
 function addPage() {
@@ -96,7 +89,6 @@ function duplicateElement(index: number) {
   activePage.value.elements.splice(index + 1, 0, copy)
 }
 
-// --- drag & drop reordering (native HTML5 DnD, no extra dependency) ---
 const dragIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
 
@@ -127,6 +119,13 @@ function onDragEnd() {
   dragIndex.value = null
   dragOverIndex.value = null
 }
+
+const statusBadge = computed(() => {
+  if (props.status === 'published') return { label: 'Опубликована', color: 'success' as const }
+  if (props.status === 'archived') return { label: 'В архиве', color: 'warning' as const }
+  if (props.status === 'draft') return { label: 'Черновик', color: 'neutral' as const }
+  return null
+})
 </script>
 
 <template>
@@ -145,22 +144,64 @@ function onDragEnd() {
         />
       </UFormField>
 
-      <UButton
-        size="lg"
-        icon="i-lucide-save"
-        :loading="saving"
-        @click="emit('submit')"
-      >
-        Сохранить
-      </UButton>
+      <div class="flex items-center gap-2">
+        <UBadge
+          v-if="statusBadge"
+          :color="statusBadge.color"
+          variant="subtle"
+          size="lg"
+        >
+          {{ statusBadge.label }}
+        </UBadge>
+
+        <UButton
+          v-if="status === 'draft'"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-rocket"
+          @click="emit('publish')"
+        >
+          Опубликовать
+        </UButton>
+
+        <UButton
+          v-if="status === 'published'"
+          color="neutral"
+          variant="subtle"
+          icon="i-lucide-archive"
+          @click="emit('archive')"
+        >
+          В архив
+        </UButton>
+
+        <UButton
+          size="lg"
+          icon="i-lucide-save"
+          :loading="saving"
+          @click="emit('submit')"
+        >
+          Сохранить
+        </UButton>
+      </div>
     </div>
 
-    <div class="flex items-center gap-2 border-b border-default pb-3">
-      <UTabs
-        v-model="activePageTabValue"
-        :items="pageTabs"
-        class="flex-1"
-      />
+    <div class="flex flex-wrap items-center gap-2 border-b border-default pb-4">
+      <button
+        v-for="(page, index) in model.schema.pages"
+        :key="page.name"
+        type="button"
+        class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
+        :class="index === activePageIndex
+          ? 'border-primary bg-primary/10 text-primary'
+          : 'border-default text-muted hover:text-default hover:border-muted'"
+        @click="activePageIndex = index"
+      >
+        <span
+          class="flex size-4 items-center justify-center rounded-full text-[10px]"
+          :class="index === activePageIndex ? 'bg-primary text-inverted' : 'bg-elevated'"
+        >{{ index + 1 }}</span>
+        {{ page.title || page.name }}
+      </button>
 
       <UButton
         icon="i-lucide-plus"
@@ -178,6 +219,7 @@ function onDragEnd() {
         color="error"
         variant="ghost"
         size="sm"
+        class="ms-auto"
         @click="removePage(activePageIndex)"
       />
     </div>
@@ -252,6 +294,15 @@ function onDragEnd() {
               >
                 Обязательное
               </UBadge>
+              <UBadge
+                v-if="element.visibleIf"
+                color="primary"
+                variant="subtle"
+                size="sm"
+                icon="i-lucide-git-branch"
+              >
+                Условие
+              </UBadge>
             </div>
             <p class="truncate text-xs text-muted">
               {{ metaFor(element.type).label }} · {{ element.name }}
@@ -297,6 +348,7 @@ function onDragEnd() {
 
     <FormBuilderElementEditor
       :element="editingElement"
+      :available-fields="allFields"
       @save="saveElement"
       @close="closeEditor"
     />
