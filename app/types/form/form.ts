@@ -1,23 +1,15 @@
 import { z } from 'zod'
-import { formSchemaObject } from '~/types/form/schema/form-schema.schema.ts'
+import { formSchemaObject } from './schema/form-schema.schema'
 
-export const formSchema = z.object({
-  id: z.uuid().optional(),
-
-  userId: z.uuid().optional(),
-
-  title: z.string().trim().min(1).max(500),
-
+export const formResponseSchema = z.object({
+  id: z.uuid(),
+  userId: z.uuid(),
+  title: z.string(),
   schema: formSchemaObject,
-
-  settings: z.record(
-    z.string(),
-    z.unknown()
-  ).default({}),
-
-  publishedAt: z.string().nullable().optional(),
-
-  createdAt: z.string().optional()
+  settings: z.record(z.string(), z.unknown()),
+  publishedAt: z.string().nullable(),
+  archivedAt: z.string().nullable(),
+  createdAt: z.string()
 })
 
-export type Form = z.infer<typeof formSchema>
+export type Form = z.infer<typeof formResponseSchema>

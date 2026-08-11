@@ -1,4 +1,4 @@
-import type { Form } from '~/types/form/api'
+import type { Form } from '~/types/form/form'
 import type { FormEditorModel } from '~/types/form/editor'
 import { createCrudApi } from '~/api/crud.ts'
 import { useHttp } from '~/api/http.ts'
