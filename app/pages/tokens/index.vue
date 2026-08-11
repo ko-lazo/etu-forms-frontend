@@ -145,7 +145,7 @@ function formatDate(value: string | null) {
 
     <ul
       v-else
-      class="mt-8 divide-y divide-default rounded-lg border"
+      class="mt-8 divide-y divide-default rounded-lg border border-default"
     >
       <li
         v-for="token in tokens"
