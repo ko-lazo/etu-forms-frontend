@@ -74,7 +74,7 @@ async function submit(
         :loading="loading"
         :disabled="loading"
         :submit="{
-          label: 'Войти',
+          label: 'Войти'
         }"
         @submit="submit"
       />
