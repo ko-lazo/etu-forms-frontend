@@ -89,7 +89,7 @@ function goBack() {
       <template #header>
         <UDashboardNavbar>
           <template #leading>
-            <UDashboardSidebarCollapse />
+<!--            <UDashboardSidebarCollapse />-->
             <UButton
               v-if="backTo"
               icon="i-lucide-arrow-left"
