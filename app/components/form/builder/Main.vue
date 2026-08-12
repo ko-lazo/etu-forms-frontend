@@ -129,76 +129,77 @@ const statusBadge = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <div class="flex items-start justify-between gap-4">
-      <UFormField
-        label="Название формы"
-        required
-        class="max-w-lg flex-1"
-      >
-        <UInput
-          v-model="model.title"
-          size="lg"
-          placeholder="Форма без названия"
-          class="w-full"
-        />
-      </UFormField>
-
+  <div class="space-y-3">
+    <div class="space-y-2 border-b border-default pb-5">
+      <UInput
+        v-model="model.title"
+        placeholder="Форма без названия"
+        variant="none"
+        class="w-full"
+        size="xl"
+        :ui="{
+          base: 'font-bold text-gray-900 dark:text-white px-0 rounded-none bg-transparent transition-all border-b border-transparent hover:border-default focus:border-primary-500 focus:ring-0'
+        }"
+      />
       <div class="flex items-center gap-2">
         <UBadge
           v-if="statusBadge"
           :color="statusBadge.color"
           variant="subtle"
-          size="lg"
+          size="md"
         >
           {{ statusBadge.label }}
         </UBadge>
 
-        <UButton
-          v-if="status === 'draft'"
-          color="neutral"
-          variant="subtle"
-          icon="i-lucide-rocket"
-          @click="emit('publish')"
-        >
-          Опубликовать
-        </UButton>
+        <div class="flex items-center gap-2 ms-auto">
+          <UButton
+            v-if="status === 'draft'"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-rocket"
+            size="sm"
+            @click="emit('publish')"
+          >
+            Опубликовать
+          </UButton>
 
-        <UButton
-          v-if="status === 'published'"
-          color="neutral"
-          variant="subtle"
-          icon="i-lucide-archive"
-          @click="emit('archive')"
-        >
-          В архив
-        </UButton>
+          <UButton
+            v-if="status === 'published'"
+            color="neutral"
+            variant="outline"
+            icon="i-lucide-archive"
+            size="sm"
+            @click="emit('archive')"
+          >
+            В архив
+          </UButton>
 
-        <UButton
-          size="lg"
-          icon="i-lucide-save"
-          :loading="saving"
-          @click="emit('submit')"
-        >
-          Сохранить
-        </UButton>
+          <UButton
+            size="sm"
+            icon="i-lucide-save"
+            :loading="saving"
+            @click="emit('submit')"
+          >
+            Сохранить
+          </UButton>
+        </div>
       </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-2 border-b border-default pb-4">
+    <div class="flex flex-wrap items-center gap-2 border-b border-default pb-3">
       <button
         v-for="(page, index) in model.schema.pages"
         :key="page.name"
         type="button"
-        class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
+        class="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
         :class="index === activePageIndex
-          ? 'border-primary bg-primary/10 text-primary'
+          ? 'border-primary bg-primary/5 text-primary'
           : 'border-default text-muted hover:text-default hover:border-muted'"
         @click="activePageIndex = index"
       >
         <span
-          class="flex size-4 items-center justify-center rounded-full text-[10px]"
-          :class="index === activePageIndex ? 'bg-primary text-inverted' : 'bg-elevated'"
+          class="flex size-4 items-center justify-center rounded-sm text-[10px] font-bold"
+          :class="index === activePageIndex ? 'bg-primary text-inverted' : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600'"
         >{{ index + 1 }}</span>
         {{ page.title || page.name }}
       </button>
@@ -224,13 +225,18 @@ const statusBadge = computed(() => {
       />
     </div>
 
-    <UFormField label="Заголовок страницы">
+    <div class="w-full">
       <UInput
         v-model="activePage.title"
-        class="max-w-sm"
-        placeholder="Заголовок страницы"
+        placeholder="Заголовок текущей страницы"
+        variant="none"
+        class="w-full"
+        size="lg"
+        :ui="{
+          base: 'font-bold text-gray-900 dark:text-white px-0 rounded-none bg-transparent transition-all border-b border-transparent hover:border-default focus:border-primary-500 focus:ring-0'
+        }"
       />
-    </UFormField>
+    </div>
 
     <div
       v-if="activePage.elements.length === 0"
@@ -269,12 +275,12 @@ const statusBadge = computed(() => {
         >
           <UIcon
             name="i-lucide-grip-vertical"
-            class="size-4 shrink-0 cursor-grab text-muted opacity-0 transition-opacity group-hover:opacity-100"
+            class="size-4 shrink-0 cursor-grab text-neutral-400 opacity-0 transition-opacity group-hover:opacity-100"
           />
 
           <UIcon
             :name="metaFor(element.type).icon"
-            class="size-4 shrink-0 text-muted"
+            class="size-4 shrink-0 text-neutral-500"
           />
 
           <button
@@ -283,7 +289,7 @@ const statusBadge = computed(() => {
             @click="openEditor(element, index)"
           >
             <div class="flex items-center gap-2">
-              <p class="truncate font-medium">
+              <p class="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-200">
                 {{ element.label }}
               </p>
               <UBadge
@@ -304,7 +310,7 @@ const statusBadge = computed(() => {
                 Условие
               </UBadge>
             </div>
-            <p class="truncate text-xs text-muted">
+            <p class="truncate text-xs font-mono text-neutral-400 mt-0.5">
               {{ metaFor(element.type).label }} · {{ element.name }}
             </p>
           </button>
@@ -339,7 +345,9 @@ const statusBadge = computed(() => {
         <UButton
           icon="i-lucide-plus"
           color="neutral"
-          variant="subtle"
+          variant="outline"
+          size="md"
+          class="w-full justify-center border-dashed"
         >
           Добавить поле
         </UButton>

@@ -93,7 +93,7 @@ async function copyPublicUrl() {
     />
 
     <template v-else-if="model">
-      <div class="mb-6 flex items-center justify-between gap-3 rounded-lg border border-default bg-default p-3">
+      <div class="mb-3 flex items-center justify-between gap-3 rounded-lg border border-default bg-default p-3">
         <div class="flex min-w-0 items-center gap-2 text-sm">
           <UIcon
             name="i-lucide-globe"
