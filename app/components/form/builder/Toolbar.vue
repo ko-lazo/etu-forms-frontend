@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TabsItem } from '@nuxt/ui'
+import type { DropdownMenuItem, TabsItem } from '@nuxt/ui'
 import type { BuilderMode } from './mode.ts'
 
 const title = defineModel<string>({ required: true })
@@ -19,118 +19,143 @@ const emit = defineEmits<{
   inspect: []
 }>()
 
-const statusBadge = computed(() => {
-  if (props.status === 'published') return { label: 'Опубликована', color: 'success' as const }
-  if (props.status === 'archived') return { label: 'В архиве', color: 'warning' as const }
-  if (props.status === 'draft') return { label: 'Черновик', color: 'neutral' as const }
-  return null
-})
+const STATUS_META = {
+  draft: { label: 'Черновик', dot: 'bg-neutral-400 dark:bg-neutral-500' },
+  published: { label: 'Опубликована', dot: 'bg-success' },
+  archived: { label: 'В архиве', dot: 'bg-warning' }
+} as const
+
+const statusMeta = computed(() => (props.status ? STATUS_META[props.status] : null))
 
 const modeItems: TabsItem[] = [
   { label: 'Конструктор', icon: 'i-lucide-pencil-ruler', value: 'build' },
   { label: 'Предпросмотр', icon: 'i-lucide-eye', value: 'preview' }
 ]
+
+const menuItems = computed<DropdownMenuItem[][]>(() => {
+  const lifecycle: DropdownMenuItem[] = []
+
+  if (props.status === 'draft') {
+    lifecycle.push({
+      label: 'Опубликовать',
+      icon: 'i-lucide-rocket',
+      onSelect: () => emit('publish')
+    })
+  }
+
+  if (props.status === 'published') {
+    lifecycle.push({
+      label: 'В архив',
+      icon: 'i-lucide-archive',
+      onSelect: () => emit('archive')
+    })
+  }
+
+  const changes: DropdownMenuItem[] = []
+
+  if (props.dirty) {
+    changes.push({
+      label: 'Сбросить изменения',
+      icon: 'i-lucide-rotate-ccw',
+      color: 'error',
+      onSelect: () => emit('reset')
+    })
+  }
+
+  return [lifecycle, changes].filter(group => group.length > 0)
+})
 </script>
 
 <template>
-  <UDashboardToolbar :ui="{ left: 'flex-1 min-w-0' }">
-    <template #left>
-      <UInput
-        v-model="title"
-        placeholder="Форма без названия"
-        variant="none"
-        size="lg"
-        class="min-w-0 flex-1"
-        :ui="{
-          base: 'font-bold text-gray-900 dark:text-white px-0 rounded-none bg-transparent transition-all border-b border-transparent hover:border-default focus:border-primary-500 focus:ring-0'
-        }"
-      />
+  <div class="flex flex-col w-full border-b border-gray-200 dark:border-gray-800">
+    <div class="flex items-center justify-between w-full px-4 py-3 gap-4">
+      <div class="flex min-w-0 flex-1 items-center">
+        <UInput
+          v-model="title"
+          placeholder="Форма без названия"
+          aria-label="Название формы"
+          variant="none"
+          class="min-w-0 flex-1"
+          :ui="{
+            base: 'truncate px-0 text-base sm:text-lg font-semibold text-highlighted bg-transparent rounded-none border-b border-transparent transition-colors hover:border-default focus:border-primary focus:ring-0'
+          }"
+        />
+      </div>
 
-      <UBadge
-        v-if="statusBadge"
-        :color="statusBadge.color"
-        variant="subtle"
-        size="md"
-        class="shrink-0"
-      >
-        {{ statusBadge.label }}
-      </UBadge>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <div class="hidden items-center gap-1.5 md:flex">
+          <slot name="actions" />
+        </div>
 
-      <UBadge
-        v-if="dirty"
-        color="warning"
-        variant="subtle"
-        size="md"
-        icon="i-lucide-pencil-line"
-        class="shrink-0"
-      >
-        Не сохранено
-      </UBadge>
-    </template>
+        <UButton
+          icon="i-lucide-settings-2"
+          color="neutral"
+          variant="ghost"
+          size="sm"
+          aria-label="Настройки элемента"
+          class="lg:hidden"
+          @click="emit('inspect')"
+        />
 
-    <template #right>
+        <UFieldGroup size="sm">
+          <UButton
+            icon="i-lucide-save"
+            :variant="dirty ? 'solid' : 'soft'"
+            :loading="saving"
+            :ui="{ label: 'hidden sm:inline' }"
+            @click="emit('submit')"
+          >
+            Сохранить
+          </UButton>
+
+          <UDropdownMenu
+            v-if="menuItems.length"
+            :items="menuItems"
+            :content="{ align: 'end' }"
+          >
+            <UButton
+              icon="i-lucide-chevron-down"
+              :variant="dirty ? 'solid' : 'soft'"
+              aria-label="Другие действия"
+            />
+          </UDropdownMenu>
+        </UFieldGroup>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between w-full px-4 py-2 border-t border-gray-100 dark:border-gray-900 bg-gray-50/50 dark:bg-gray-800/20 gap-4">
       <UTabs
         :model-value="mode"
         :items="modeItems"
         :content="false"
         size="sm"
         class="shrink-0"
-        :ui="{ label: 'hidden sm:block' }"
+        :ui="{ label: 'hidden md:block' }"
         @update:model-value="(value) => mode = value as BuilderMode"
       />
 
-      <UButton
-        icon="i-lucide-settings-2"
-        color="neutral"
-        variant="ghost"
-        size="sm"
-        class="lg:hidden"
-        @click="emit('inspect')"
-      />
+      <div class="flex shrink-0 items-center gap-3 text-xs">
+        <span
+          v-if="statusMeta"
+          class="inline-flex items-center gap-1.5 rounded-full bg-elevated px-2 py-0.5 font-medium text-muted"
+        >
+          <span
+            class="size-1.5 rounded-full"
+            :class="statusMeta.dot"
+          />
+          {{ statusMeta.label }}
+        </span>
 
-      <slot name="actions" />
-
-      <UButton
-        v-if="status === 'draft'"
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-rocket"
-        size="sm"
-        @click="emit('publish')"
-      >
-        Опубликовать
-      </UButton>
-
-      <UButton
-        v-if="dirty"
-        icon="i-lucide-rotate-ccw"
-        color="neutral"
-        variant="ghost"
-        size="sm"
-        @click="emit('reset')"
-      >
-        Сбросить
-      </UButton>
-
-      <UButton
-        v-if="status === 'published'"
-        color="neutral"
-        variant="outline"
-        icon="i-lucide-archive"
-        size="sm"
-        @click="emit('archive')"
-      >
-        В архив
-      </UButton>
-
-      <UButton
-        size="sm"
-        icon="i-lucide-save"
-        :loading="saving"
-        @click="emit('submit')"
-      >
-        Сохранить
-      </UButton>
-    </template>
-  </UDashboardToolbar>
+        <UTooltip
+          v-if="dirty"
+          text="Есть несохранённые изменения"
+        >
+          <span class="inline-flex items-center gap-1.5 font-medium text-warning">
+            <span class="size-1.5 rounded-full bg-warning" />
+            <span class="hidden md:inline">Не сохранено</span>
+          </span>
+        </UTooltip>
+      </div>
+    </div>
+  </div>
 </template>
