@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { FormElement, FormPage } from './schema/form-schema.schema'
 import { formSchemaObject } from './schema/form-schema.schema'
 
 export const formEditorSchema = z.object({
@@ -12,3 +13,14 @@ export const formEditorSchema = z.object({
 })
 
 export type FormEditorModel = z.infer<typeof formEditorSchema>
+
+/**
+ * Идентификатор для редактора форм. В FormSchema он не входит.
+ */
+type WithUid<T> = T extends unknown ? T & { _uid: string } : never
+
+export type EditorElement = WithUid<FormElement>
+
+export type EditorPage = Omit<FormPage, 'elements'> & { elements: EditorElement[] }
+
+export type EditorModel = Omit<FormEditorModel, 'schema'> & { schema: { pages: EditorPage[] } }

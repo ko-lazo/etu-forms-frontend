@@ -1,4 +1,6 @@
-import type { FormElement, FormElementType } from '~/types/form/schema/form-schema.schema.ts'
+import type { FormElementType } from '~/types/form/schema/form-schema.schema.ts'
+import type { EditorElement } from '~/types/form/editor.ts'
+import { createUid } from '~/utils/uid.ts'
 
 interface ElementTypeMeta {
   type: FormElementType
@@ -29,8 +31,9 @@ function nextName(prefix: string): string {
   return `${prefix}${counter}`
 }
 
-export function createElement(type: FormElementType): FormElement {
+export function createElement(type: FormElementType): EditorElement {
   const base = {
+    _uid: createUid(),
     name: nextName('field'),
     label: metaFor(type).label,
     required: false

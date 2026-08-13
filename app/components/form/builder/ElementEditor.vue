@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { FormElement } from '~/types/form/schema/form-schema.schema.ts'
+import type { EditorElement } from '~/types/form/editor.ts'
 import { metaFor } from './element-meta.ts'
 
 const props = defineProps<{
-  element: FormElement | null
-  availableFields: FormElement[]
+  element: EditorElement | null
+  availableFields: EditorElement[]
 }>()
 
 const emit = defineEmits<{
-  save: [element: FormElement]
+  save: [element: EditorElement]
   close: []
 }>()
 
@@ -19,7 +19,7 @@ const open = computed({
   }
 })
 
-const draft = ref<FormElement | null>(null)
+const draft = ref<EditorElement | null>(null)
 
 watch(() => props.element, (element) => {
   if (!element) return
