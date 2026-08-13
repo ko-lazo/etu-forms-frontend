@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/api/form.ts'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы: редактирование' })
+definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: редактирование' })
 
 const route = useRoute()
 const formId = route.params.id as string
@@ -85,53 +85,54 @@ async function copyPublicUrl() {
 </script>
 
 <template>
-  <UContainer class="max-w-3xl py-8">
-    <div
-      v-if="status === 'pending'"
-      class="space-y-4"
-    >
+  <UDashboardPanel v-if="status === 'pending'">
+    <template #header>
+      <AppNavbar />
+    </template>
+
+    <template #body>
       <USkeleton class="h-10 w-full" />
       <USkeleton class="h-40 w-full" />
-    </div>
+    </template>
+  </UDashboardPanel>
 
-    <UAlert
-      v-else-if="error"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-alert-triangle"
-      title="Не удалось загрузить форму"
-      :description="error.message"
-    />
+  <UDashboardPanel v-else-if="error">
+    <template #header>
+      <AppNavbar />
+    </template>
 
-    <template v-else-if="model">
-      <div class="mb-3 flex items-center justify-between gap-3 rounded-lg border border-default bg-default p-3">
-        <div class="flex min-w-0 items-center gap-2 text-sm">
-          <UIcon
-            name="i-lucide-globe"
-            class="size-4 shrink-0 text-muted"
-          />
-          <span class="truncate text-muted">Публичная ссылка:</span>
-          <code class="truncate">{{ publicUrl }}</code>
-        </div>
+    <template #body>
+      <UAlert
+        color="error"
+        variant="subtle"
+        icon="i-lucide-alert-triangle"
+        title="Не удалось загрузить форму"
+        :description="error.message"
+      />
+    </template>
+  </UDashboardPanel>
+
+  <FormBuilderMain
+    v-else-if="model"
+    v-model="model"
+    :saving="saving"
+    :status="formStatus"
+    @submit="save"
+    @publish="notImplemented"
+    @archive="notImplemented"
+  >
+    <template #actions>
+      <UTooltip :text="publicUrl">
         <UButton
-          :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
+          :icon="copied ? 'i-lucide-check' : 'i-lucide-globe'"
           color="neutral"
           variant="subtle"
           size="sm"
           @click="copyPublicUrl"
         >
-          {{ copied ? 'Скопировано' : 'Копировать' }}
+          {{ copied ? 'Скопировано' : 'Публичная ссылка' }}
         </UButton>
-      </div>
-
-      <FormBuilderMain
-        v-model="model"
-        :saving="saving"
-        :status="formStatus"
-        @submit="save"
-        @publish="notImplemented"
-        @archive="notImplemented"
-      />
+      </UTooltip>
     </template>
-  </UContainer>
+  </FormBuilderMain>
 </template>

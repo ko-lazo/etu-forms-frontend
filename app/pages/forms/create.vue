@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/api/form.ts'
 
-definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы: создание' })
+definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: создание' })
 
 const { setBreadcrumbs } = usePageHeader()
 setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: 'Новая форма' }])
@@ -43,11 +43,9 @@ async function save() {
 </script>
 
 <template>
-  <UContainer class="max-w-3xl py-8">
-    <FormBuilderMain
-      v-model="model"
-      :saving="saving"
-      @submit="save"
-    />
-  </UContainer>
+  <FormBuilderMain
+    v-model="model"
+    :saving="saving"
+    @submit="save"
+  />
 </template>
