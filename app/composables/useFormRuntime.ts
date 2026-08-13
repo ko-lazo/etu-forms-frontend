@@ -1,5 +1,5 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { FormElement, FormPage, FormSchemaDto } from '~/types/form/schema/form-schema.schema'
+import type { FormPage, FormSchemaDto } from '~/types/form/schema/form-schema.schema'
 import type { FormResponseAnswerValue } from '~/types/form/response'
 import type { FormAnswers } from '~/utils/answer'
 import type { FormRuntimePersistence } from '~/utils/form-runtime-persistence'
@@ -37,8 +37,6 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
       }))
   })
 
-  const visibleFields = computed<FormElement[]>(() => visiblePages.value.flatMap(page => page.elements))
-
   let saveTimeout: ReturnType<typeof setTimeout> | undefined
 
   function scheduleSave() {
@@ -62,7 +60,23 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
 
   function setAnswer(name: string, value: unknown) {
     answers.value[name] = value as FormResponseAnswerValue
+    refreshShownErrors()
     scheduleSave()
+  }
+
+  function refreshShownErrors() {
+    const shown = Object.keys(errors.value)
+    if (shown.length === 0) return
+
+    const actual = validateAnswers(visiblePages.value, answers.value)
+    const next: Record<string, string> = {}
+
+    for (const field of shown) {
+      const message = actual[field]
+      if (message !== undefined) next[field] = message
+    }
+
+    errors.value = next
   }
 
   async function loadDraft() {
@@ -74,7 +88,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   }
 
   async function submit(): Promise<boolean> {
-    errors.value = validateAnswers(visibleFields.value, answers.value)
+    errors.value = validateAnswers(visiblePages.value, answers.value)
 
     if (Object.keys(errors.value).length > 0) return false
 
@@ -108,7 +122,6 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
     submitting,
     saveState,
     visiblePages,
-    visibleFields,
     setAnswer,
     submit,
     reset

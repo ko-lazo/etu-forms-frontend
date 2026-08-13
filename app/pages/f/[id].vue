@@ -26,6 +26,13 @@ const {
   persistence
 })
 
+const renderer = ref<{ scrollToFirstError: () => void } | null>(null)
+
+async function onSubmit() {
+  const sent = await submit()
+  if (!sent) renderer.value?.scrollToFirstError()
+}
+
 const resumeUrl = computed(() => {
   if (!responseId.value || import.meta.server) return ''
   return `${window.location.origin}${route.path}?r=${responseId.value}`
@@ -67,13 +74,14 @@ async function copyResumeUrl() {
 
       <FormRuntimeRenderer
         v-else-if="form"
+        ref="renderer"
         :title="form.title"
         :pages="visiblePages"
         :answers="answers"
         :errors="errors"
         :submitting="submitting"
         @update:answer="setAnswer"
-        @submit="submit"
+        @submit="onSubmit"
       >
         <template
           v-if="resumeUrl"

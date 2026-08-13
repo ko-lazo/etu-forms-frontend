@@ -29,14 +29,15 @@ function setFieldRef(name: string, el: Element | ComponentPublicInstance | null)
   }
 }
 
-watch(() => props.errors, (errors) => {
-  const first = Object.keys(errors)[0]
+async function scrollToFirstError() {
+  const first = Object.keys(props.errors)[0]
   if (!first) return
 
-  nextTick(() => {
-    fieldRefs.get(first)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  })
-})
+  await nextTick()
+  fieldRefs.get(first)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
+defineExpose({ scrollToFirstError })
 </script>
 
 <template>

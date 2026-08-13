@@ -20,6 +20,13 @@ const {
   persistence: createPreviewPersistence()
 })
 
+const renderer = ref<{ scrollToFirstError: () => void } | null>(null)
+
+async function onSubmit() {
+  const sent = await submit()
+  if (!sent) renderer.value?.scrollToFirstError()
+}
+
 const allPagesHidden = computed(() =>
   props.model.schema.pages.length > 0 && visiblePages.value.length === 0
 )
@@ -74,13 +81,14 @@ const allPagesHidden = computed(() =>
 
     <FormRuntimeRenderer
       v-else
+      ref="renderer"
       :title="model.title || 'Форма без названия'"
       :pages="visiblePages"
       :answers="answers"
       :errors="errors"
       :submitting="submitting"
       @update:answer="setAnswer"
-      @submit="submit"
+      @submit="onSubmit"
     />
   </div>
 </template>
