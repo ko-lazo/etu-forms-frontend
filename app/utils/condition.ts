@@ -46,6 +46,18 @@ function evaluateRule(rule: ConditionRule, answers: Answers): boolean {
   }
 }
 
+export function renameConditionField(condition: Condition | undefined, from: string, to: string): void {
+  if (!condition) return
+
+  if (isRule(condition)) {
+    if (condition.field === from) condition.field = to
+    return
+  }
+
+  const children = 'and' in condition ? condition.and : condition.or
+  children.forEach(child => renameConditionField(child, from, to))
+}
+
 export function evaluateCondition(condition: Condition | undefined, answers: Answers): boolean {
   if (!condition) return true
 

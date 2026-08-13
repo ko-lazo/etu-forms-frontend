@@ -7,9 +7,30 @@ const props = defineProps<{
   availableFields: EditorElement[]
 }>()
 
+const emit = defineEmits<{
+  rename: [payload: { from: string, to: string }]
+}>()
+
 const conditionFields = computed(() =>
   props.availableFields.filter(field => field._uid !== element.value._uid)
 )
+
+const nameDraft = ref(element.value.name)
+
+watch(element, (value) => {
+  nameDraft.value = value.name
+})
+
+function commitName() {
+  const next = nameDraft.value.trim()
+
+  if (!next || next === element.value.name) {
+    nameDraft.value = element.value.name
+    return
+  }
+
+  emit('rename', { from: element.value.name, to: next })
+}
 
 function addChoice() {
   if (!('choices' in element.value)) return
@@ -43,9 +64,11 @@ function removeChoice(index: number) {
       required
     >
       <UInput
-        v-model="element.name"
+        v-model="nameDraft"
         class="w-full font-mono"
         placeholder="field_name"
+        @blur="commitName"
+        @keydown.enter="commitName"
       />
     </UFormField>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor.ts'
+import { renameConditionField } from '~/utils/condition.ts'
 
 const model = defineModel<EditorModel>({ required: true })
 
@@ -39,6 +40,22 @@ const selectedElement = computed<EditorElement | null>({
     activePage.value.elements.splice(index, 1, value)
   }
 })
+
+/**
+ * Условия ссылаются на поля по `name`, поэтому переименование обновляет ссылки
+ * по всей форме
+ */
+function renameField({ from, to }: { from: string, to: string }) {
+  const element = selectedElement.value
+  if (!element) return
+
+  element.name = to
+
+  for (const page of model.value.schema.pages) {
+    renameConditionField(page.visibleIf, from, to)
+    page.elements.forEach(item => renameConditionField(item.visibleIf, from, to))
+  }
+}
 </script>
 
 <template>
@@ -77,6 +94,7 @@ const selectedElement = computed<EditorElement | null>({
     <FormBuilderInspector
       v-model="selectedElement"
       :available-fields="allFields"
+      @rename="renameField"
     />
   </UDashboardPanel>
 </template>

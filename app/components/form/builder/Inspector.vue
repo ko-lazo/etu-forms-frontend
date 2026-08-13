@@ -8,6 +8,10 @@ defineProps<{
   availableFields: EditorElement[]
 }>()
 
+const emit = defineEmits<{
+  rename: [payload: { from: string, to: string }]
+}>()
+
 const meta = computed(() => (element.value ? metaFor(element.value.type) : null))
 </script>
 
@@ -38,6 +42,7 @@ const meta = computed(() => (element.value ? metaFor(element.value.type) : null)
         v-if="element"
         v-model="element"
         :available-fields="availableFields"
+        @rename="emit('rename', $event)"
       />
 
       <UEmpty
