@@ -4,6 +4,7 @@ import { metaFor } from './element-meta.ts'
 
 defineProps<{
   element: EditorElement
+  selected?: boolean
   dragOver?: boolean
 }>()
 
@@ -17,7 +18,10 @@ const emit = defineEmits<{
 <template>
   <li
     class="group flex items-center gap-3 rounded-lg border border-default bg-default p-3 transition-colors"
-    :class="{ 'border-primary bg-primary/5': dragOver }"
+    :class="[
+      dragOver && 'border-primary bg-primary/5',
+      selected && 'border-primary bg-primary/5 ring-1 ring-primary'
+    ]"
   >
     <UIcon
       name="i-lucide-grip-vertical"

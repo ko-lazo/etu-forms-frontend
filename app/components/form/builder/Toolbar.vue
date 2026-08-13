@@ -21,59 +21,63 @@ const statusBadge = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-2 border-b border-default pb-5">
-    <UInput
-      v-model="title"
-      placeholder="Форма без названия"
-      variant="none"
-      class="w-full"
-      size="xl"
-      :ui="{
-        base: 'font-bold text-gray-900 dark:text-white px-0 rounded-none bg-transparent transition-all border-b border-transparent hover:border-default focus:border-primary-500 focus:ring-0'
-      }"
-    />
-    <div class="flex items-center gap-2">
+  <UDashboardToolbar :ui="{ left: 'flex-1 min-w-0' }">
+    <template #left>
+      <UInput
+        v-model="title"
+        placeholder="Форма без названия"
+        variant="none"
+        size="lg"
+        class="min-w-0 flex-1"
+        :ui="{
+          base: 'font-bold text-gray-900 dark:text-white px-0 rounded-none bg-transparent transition-all border-b border-transparent hover:border-default focus:border-primary-500 focus:ring-0'
+        }"
+      />
+
       <UBadge
         v-if="statusBadge"
         :color="statusBadge.color"
         variant="subtle"
         size="md"
+        class="shrink-0"
       >
         {{ statusBadge.label }}
       </UBadge>
+    </template>
 
-      <div class="flex items-center gap-2 ms-auto">
-        <UButton
-          v-if="status === 'draft'"
-          color="neutral"
-          variant="outline"
-          icon="i-lucide-rocket"
-          size="sm"
-          @click="emit('publish')"
-        >
-          Опубликовать
-        </UButton>
+    <template #right>
+      <slot name="actions" />
 
-        <UButton
-          v-if="status === 'published'"
-          color="neutral"
-          variant="outline"
-          icon="i-lucide-archive"
-          size="sm"
-          @click="emit('archive')"
-        >
-          В архив
-        </UButton>
+      <UButton
+        v-if="status === 'draft'"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-rocket"
+        size="sm"
+        @click="emit('publish')"
+      >
+        Опубликовать
+      </UButton>
 
-        <UButton
-          size="sm"
-          icon="i-lucide-save"
-          :loading="saving"
-          @click="emit('submit')"
-        >
-          Сохранить
-        </UButton>
-      </div>
-    </div>
-  </div>
+      <UButton
+        v-if="status === 'published'"
+        color="neutral"
+        variant="outline"
+        icon="i-lucide-archive"
+        size="sm"
+        @click="emit('archive')"
+      >
+        В архив
+      </UButton>
+
+      <UButton
+        size="sm"
+        icon="i-lucide-save"
+        :loading="saving"
+        @click="emit('submit')"
+      >
+        Сохранить
+      </UButton>
+    </template>
+  </UDashboardToolbar>
 </template>

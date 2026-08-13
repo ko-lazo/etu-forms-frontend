@@ -1,16 +1,36 @@
 import { toRaw } from 'vue'
 import type { ZodError } from 'zod'
 import type { Form } from '~/types/form/form'
-import type { EditorModel, EditorPage } from '~/types/form/editor'
+import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor'
 import type { FormSchemaDto } from '~/types/form/schema/form-schema.schema'
 import { formEditorSchema } from '~/types/form/editor'
 import { createUid } from '~/utils/uid'
+
+export function applyValidationDefaults(element: EditorElement): EditorElement {
+  switch (element.type) {
+    case 'text':
+    case 'email':
+    case 'textarea':
+      element.validation ??= {}
+      break
+
+    case 'number':
+      element.validation ??= {}
+      break
+
+    case 'file':
+      element.validation ??= { maxFileSizeMb: 5, maxFilesCount: 1 }
+      break
+  }
+
+  return element
+}
 
 function withUids(schema: FormSchemaDto): { pages: EditorPage[] } {
   return {
     pages: schema.pages.map(page => ({
       ...page,
-      elements: page.elements.map(element => ({ ...element, _uid: createUid() }))
+      elements: page.elements.map(element => applyValidationDefaults({ ...element, _uid: createUid() }))
     }))
   }
 }

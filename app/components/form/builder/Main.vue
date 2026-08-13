@@ -25,41 +25,58 @@ const allFields = computed<EditorElement[]>(() =>
   model.value.schema.pages.flatMap(page => page.elements)
 )
 
-const selectedElement = computed<EditorElement | null>(() =>
-  activePage.value.elements.find(element => element._uid === selectedId.value) ?? null
-)
+const selectedElement = computed<EditorElement | null>({
+  get: () => activePage.value.elements.find(element => element._uid === selectedId.value) ?? null,
+  set: (value) => {
+    if (!value) {
+      selectedId.value = null
+      return
+    }
 
-function saveElement(element: EditorElement) {
-  const index = activePage.value.elements.findIndex(item => item._uid === element._uid)
-  if (index === -1) return
+    const index = activePage.value.elements.findIndex(element => element._uid === value._uid)
+    if (index === -1) return
 
-  activePage.value.elements.splice(index, 1, element)
-  selectedId.value = null
-}
+    activePage.value.elements.splice(index, 1, value)
+  }
+})
 </script>
 
 <template>
-  <div class="space-y-3">
-    <FormBuilderToolbar
-      v-model="model.title"
-      :saving="saving"
-      :status="status"
-      @submit="emit('submit')"
-      @publish="emit('publish')"
-      @archive="emit('archive')"
-    />
+  <UDashboardPanel>
+    <template #header>
+      <AppNavbar />
 
-    <FormBuilderCanvas
-      v-model:pages="model.schema.pages"
-      v-model:page-index="activePageIndex"
-      v-model:selected-id="selectedId"
-    />
+      <FormBuilderToolbar
+        v-model="model.title"
+        :saving="saving"
+        :status="status"
+        @submit="emit('submit')"
+        @publish="emit('publish')"
+        @archive="emit('archive')"
+      >
+        <template #actions>
+          <slot name="actions" />
+        </template>
+      </FormBuilderToolbar>
+    </template>
 
-    <FormBuilderElementEditor
-      :element="selectedElement"
+    <template #body>
+      <FormBuilderCanvas
+        v-model:pages="model.schema.pages"
+        v-model:page-index="activePageIndex"
+        v-model:selected-id="selectedId"
+      />
+    </template>
+  </UDashboardPanel>
+
+  <UDashboardPanel
+    id="inspector"
+    :default-size="26"
+    class="hidden lg:flex"
+  >
+    <FormBuilderInspector
+      v-model="selectedElement"
       :available-fields="allFields"
-      @save="saveElement"
-      @close="selectedId = null"
     />
-  </div>
+  </UDashboardPanel>
 </template>

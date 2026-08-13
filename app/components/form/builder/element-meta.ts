@@ -1,6 +1,7 @@
 import type { FormElementType } from '~/types/form/schema/form-schema.schema.ts'
 import type { EditorElement } from '~/types/form/editor.ts'
 import { createUid } from '~/utils/uid.ts'
+import { applyValidationDefaults } from '~/utils/form-editor.ts'
 
 interface ElementTypeMeta {
   type: FormElementType
@@ -32,6 +33,10 @@ function nextName(prefix: string): string {
 }
 
 export function createElement(type: FormElementType): EditorElement {
+  return applyValidationDefaults(createBaseElement(type))
+}
+
+function createBaseElement(type: FormElementType): EditorElement {
   const base = {
     _uid: createUid(),
     name: nextName('field'),

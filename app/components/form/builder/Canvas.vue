@@ -93,7 +93,7 @@ function onDragEnd() {
 </script>
 
 <template>
-  <div class="space-y-3">
+  <div class="mx-auto w-full max-w-3xl space-y-3">
     <div class="flex flex-wrap items-center gap-2 border-b border-default pb-3">
       <button
         v-for="(page, index) in pages"
@@ -174,6 +174,7 @@ function onDragEnd() {
           v-for="(element, index) in activePage.elements"
           :key="element._uid"
           :element="element"
+          :selected="element._uid === selectedId"
           :drag-over="dragOverIndex === index && dragIndex !== index"
           draggable="true"
           @dragstart="onDragStart(index)"
