@@ -12,6 +12,8 @@ const saving = ref(false)
 
 const model = ref(createEmptyFormEditorModel())
 
+const { isDirty, markSaved, reset } = useUnsavedChanges(model)
+
 async function save() {
   if (!model.value.title.trim()) {
     toast.add({ title: 'Сначала укажите название формы', color: 'warning' })
@@ -32,6 +34,7 @@ async function save() {
   saving.value = true
   try {
     const form = await formsApi.save(payload.data)
+    markSaved()
     toast.add({ title: 'Форма создана', color: 'success' })
     await navigateTo(`/forms/${form.id}/edit`)
   } catch {
@@ -46,6 +49,8 @@ async function save() {
   <FormBuilderMain
     v-model="model"
     :saving="saving"
+    :dirty="isDirty"
     @submit="save"
+    @reset="reset"
   />
 </template>

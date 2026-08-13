@@ -3,6 +3,7 @@ const title = defineModel<string>({ required: true })
 
 const props = defineProps<{
   saving?: boolean
+  dirty?: boolean
   status?: 'draft' | 'published' | 'archived'
 }>()
 
@@ -10,6 +11,8 @@ const emit = defineEmits<{
   submit: []
   publish: []
   archive: []
+  reset: []
+  inspect: []
 }>()
 
 const statusBadge = computed(() => {
@@ -43,9 +46,29 @@ const statusBadge = computed(() => {
       >
         {{ statusBadge.label }}
       </UBadge>
+
+      <UBadge
+        v-if="dirty"
+        color="warning"
+        variant="subtle"
+        size="md"
+        icon="i-lucide-pencil-line"
+        class="shrink-0"
+      >
+        Не сохранено
+      </UBadge>
     </template>
 
     <template #right>
+      <UButton
+        icon="i-lucide-settings-2"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        class="lg:hidden"
+        @click="emit('inspect')"
+      />
+
       <slot name="actions" />
 
       <UButton
@@ -57,6 +80,17 @@ const statusBadge = computed(() => {
         @click="emit('publish')"
       >
         Опубликовать
+      </UButton>
+
+      <UButton
+        v-if="dirty"
+        icon="i-lucide-rotate-ccw"
+        color="neutral"
+        variant="ghost"
+        size="sm"
+        @click="emit('reset')"
+      >
+        Сбросить
       </UButton>
 
       <UButton

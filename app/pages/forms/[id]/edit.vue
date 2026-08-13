@@ -20,6 +20,8 @@ const { data: form, status, error } = await useAsyncData(
 
 const model = ref(form.value ? formToEditorModel(form.value) : null)
 
+const { isDirty, markSaved, reset } = useUnsavedChanges(model)
+
 const formStatus = computed<'draft' | 'published' | 'archived'>(() => {
   if (!form.value) return 'draft'
   if (form.value.archivedAt) return 'archived'
@@ -30,6 +32,7 @@ const formStatus = computed<'draft' | 'published' | 'archived'>(() => {
 watch(form, (value) => {
   if (value && !model.value) {
     model.value = formToEditorModel(value)
+    markSaved()
   }
   if (value) {
     setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: value.title }])
@@ -53,6 +56,7 @@ async function save() {
   saving.value = true
   try {
     await formsApi.save(payload.data)
+    markSaved()
     toast.add({ title: 'Изменения сохранены', color: 'success' })
   } catch {
     toast.add({ title: 'Не удалось сохранить форму', color: 'error' })
@@ -116,10 +120,12 @@ async function copyPublicUrl() {
     v-else-if="model"
     v-model="model"
     :saving="saving"
+    :dirty="isDirty"
     :status="formStatus"
     @submit="save"
     @publish="notImplemented"
     @archive="notImplemented"
+    @reset="reset"
   >
     <template #actions>
       <UTooltip :text="publicUrl">

@@ -6,6 +6,7 @@ const model = defineModel<EditorModel>({ required: true })
 
 defineProps<{
   saving?: boolean
+  dirty?: boolean
   status?: 'draft' | 'published' | 'archived'
 }>()
 
@@ -13,6 +14,7 @@ const emit = defineEmits<{
   submit: []
   publish: []
   archive: []
+  reset: []
 }>()
 
 const activePageIndex = ref(0)
@@ -66,10 +68,12 @@ function renameField({ from, to }: { from: string, to: string }) {
       <FormBuilderToolbar
         v-model="model.title"
         :saving="saving"
+        :dirty="dirty"
         :status="status"
         @submit="emit('submit')"
         @publish="emit('publish')"
         @archive="emit('archive')"
+        @reset="emit('reset')"
       >
         <template #actions>
           <slot name="actions" />
