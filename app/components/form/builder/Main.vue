@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor.ts'
+import type { BuilderMode } from './mode.ts'
 import { renameConditionField } from '~/utils/condition.ts'
 
 const model = defineModel<EditorModel>({ required: true })
@@ -17,6 +18,7 @@ const emit = defineEmits<{
   reset: []
 }>()
 
+const mode = ref<BuilderMode>('build')
 const activePageIndex = ref(0)
 const selectedId = ref<string | null>(null)
 
@@ -67,6 +69,7 @@ function renameField({ from, to }: { from: string, to: string }) {
 
       <FormBuilderToolbar
         v-model="model.title"
+        v-model:mode="mode"
         :saving="saving"
         :dirty="dirty"
         :status="status"
@@ -83,14 +86,21 @@ function renameField({ from, to }: { from: string, to: string }) {
 
     <template #body>
       <FormBuilderCanvas
+        v-if="mode === 'build'"
         v-model:pages="model.schema.pages"
         v-model:page-index="activePageIndex"
         v-model:selected-id="selectedId"
+      />
+
+      <FormBuilderPreview
+        v-else
+        :model="model"
       />
     </template>
   </UDashboardPanel>
 
   <UDashboardPanel
+    v-if="mode === 'build'"
     id="inspector"
     :default-size="26"
     class="hidden lg:flex"

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import type { TabsItem } from '@nuxt/ui'
+import type { BuilderMode } from './mode.ts'
+
 const title = defineModel<string>({ required: true })
+const mode = defineModel<BuilderMode>('mode', { required: true })
 
 const props = defineProps<{
   saving?: boolean
@@ -21,6 +25,11 @@ const statusBadge = computed(() => {
   if (props.status === 'draft') return { label: 'Черновик', color: 'neutral' as const }
   return null
 })
+
+const modeItems: TabsItem[] = [
+  { label: 'Конструктор', icon: 'i-lucide-pencil-ruler', value: 'build' },
+  { label: 'Предпросмотр', icon: 'i-lucide-eye', value: 'preview' }
+]
 </script>
 
 <template>
@@ -60,6 +69,16 @@ const statusBadge = computed(() => {
     </template>
 
     <template #right>
+      <UTabs
+        :model-value="mode"
+        :items="modeItems"
+        :content="false"
+        size="sm"
+        class="shrink-0"
+        :ui="{ label: 'hidden sm:block' }"
+        @update:model-value="(value) => mode = value as BuilderMode"
+      />
+
       <UButton
         icon="i-lucide-settings-2"
         color="neutral"
