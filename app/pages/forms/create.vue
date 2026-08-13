@@ -18,9 +18,20 @@ async function save() {
     return
   }
 
+  const payload = parseEditorModelToPayload(model.value)
+
+  if (!payload.success) {
+    toast.add({
+      title: 'Форма заполнена некорректно',
+      description: formatValidationError(payload.error),
+      color: 'error'
+    })
+    return
+  }
+
   saving.value = true
   try {
-    const form = await formsApi.save(model.value)
+    const form = await formsApi.save(payload.data)
     toast.add({ title: 'Форма создана', color: 'success' })
     await navigateTo(`/forms/${form.id}/edit`)
   } catch {

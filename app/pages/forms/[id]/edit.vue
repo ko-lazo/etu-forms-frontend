@@ -39,9 +39,20 @@ watch(form, (value) => {
 async function save() {
   if (!model.value) return
 
+  const payload = parseEditorModelToPayload(model.value)
+
+  if (!payload.success) {
+    toast.add({
+      title: 'Форма заполнена некорректно',
+      description: formatValidationError(payload.error),
+      color: 'error'
+    })
+    return
+  }
+
   saving.value = true
   try {
-    await formsApi.save(model.value)
+    await formsApi.save(payload.data)
     toast.add({ title: 'Изменения сохранены', color: 'success' })
   } catch {
     toast.add({ title: 'Не удалось сохранить форму', color: 'error' })
