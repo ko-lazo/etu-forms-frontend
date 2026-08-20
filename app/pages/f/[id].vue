@@ -39,16 +39,7 @@ const resumeUrl = computed(() => {
   return `${window.location.origin}${route.path}?r=${responseId.value}`
 })
 
-const copied = ref(false)
-
-async function copyResumeUrl() {
-  if (!resumeUrl.value) return
-  await navigator.clipboard.writeText(resumeUrl.value)
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
-}
+const { copied, copy } = useCopyToClipboard()
 </script>
 
 <template>
@@ -101,7 +92,7 @@ async function copyResumeUrl() {
               color="neutral"
               variant="subtle"
               size="sm"
-              @click="copyResumeUrl"
+              @click="copy(resumeUrl)"
             >
               {{ copied ? 'Скопировано' : 'Копировать' }}
             </UButton>

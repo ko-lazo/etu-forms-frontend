@@ -71,15 +71,7 @@ const publicUrl = computed(() => {
   return `${window.location.origin}/f/${formId}`
 })
 
-const copied = ref(false)
-
-async function copyPublicUrl() {
-  await navigator.clipboard.writeText(publicUrl.value)
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
-}
+const { copied, copy } = useCopyToClipboard()
 </script>
 
 <template>
@@ -128,7 +120,7 @@ async function copyPublicUrl() {
           color="neutral"
           variant="subtle"
           size="sm"
-          @click="copyPublicUrl"
+          @click="copy(publicUrl)"
         >
           {{ copied ? 'Скопировано' : 'Публичная ссылка' }}
         </UButton>
