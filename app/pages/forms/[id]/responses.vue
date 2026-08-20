@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TableColumn, TableRow } from '@nuxt/ui'
-import type { FormResponse } from '~/types/form/response'
-import { useFormsApi } from '~/api/form.ts'
-import { useFormResponsesApi } from '~/api/form-response.ts'
+import type { FormResponse } from '~/features/form-responses/types'
+import { useFormsApi } from '~/features/forms/api'
+import { useFormResponsesApi } from '~/features/form-responses/api'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Ответы' })
 

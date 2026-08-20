@@ -1,5 +1,9 @@
-import type { FormRuntimePersistence } from '~/utils/form-runtime-persistence'
-import { useFormResponsesApi } from '~/api/form-response'
+import type { FormRuntimePersistence } from '~/features/forms/runtime/persistence'
+import { AnswersRejectedError } from '~/features/forms/runtime/persistence'
+import { useFormResponsesApi } from './api'
+import { toFieldErrors } from './error'
+
+const draftStorageKey = (formId: string) => `etu-forms:response:${formId}`
 
 export function useFormResponsePersistence(formId: string) {
   const route = useRoute()
@@ -7,7 +11,7 @@ export function useFormResponsePersistence(formId: string) {
   const responsesApi = useFormResponsesApi(formId)
 
   const responseId = ref<string | null>(null)
-  const storageKey = `etu-forms:response:${formId}`
+  const storageKey = draftStorageKey(formId)
 
   const persistence: FormRuntimePersistence = {
     async loadDraft() {
@@ -45,12 +49,20 @@ export function useFormResponsePersistence(formId: string) {
     },
 
     async submit(answers) {
-      await responsesApi.save({
-        id: responseId.value ?? undefined,
-        answers,
-        metadata: {},
-        submittedAt: new Date().toISOString()
-      })
+      try {
+        await responsesApi.save({
+          id: responseId.value ?? undefined,
+          answers,
+          metadata: {},
+          submittedAt: new Date().toISOString()
+        })
+      } catch (error) {
+        const fieldErrors = toFieldErrors(error)
+
+        if (Object.keys(fieldErrors).length === 0) throw error
+
+        throw new AnswersRejectedError(fieldErrors)
+      }
 
       localStorage.removeItem(storageKey)
     }
