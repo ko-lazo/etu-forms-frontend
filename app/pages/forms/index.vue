@@ -70,41 +70,22 @@ function fieldsCount(form: Form): number {
       />
     </div>
 
-    <UAlert
+    <AppErrorState
       v-else-if="error"
       class="mt-8"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-alert-triangle"
       title="Не удалось загрузить формы"
       :description="error.message"
-    >
-      <template #actions>
-        <UButton
-          size="sm"
-          color="error"
-          variant="subtle"
-          @click="refresh()"
-        >
-          Повторить
-        </UButton>
-      </template>
-    </UAlert>
+      retryable
+      @retry="refresh()"
+    />
 
-    <div
+    <AppEmptyState
       v-else-if="isEmpty"
-      class="mt-16 flex flex-col items-center gap-3 text-center"
+      class="mt-16"
+      icon="i-lucide-file-text"
+      title="Форм пока нет"
+      description="Создайте свою первую форму"
     >
-      <UIcon
-        name="i-lucide-file-text"
-        class="size-10 text-neutral-400"
-      />
-      <p class="text-lg font-medium">
-        Форм пока нет
-      </p>
-      <p class="max-w-sm text-sm text-neutral-500">
-        Создайте свою первую форму, чтобы начать сбор ответов от пользователей.
-      </p>
       <UButton
         to="/forms/create"
         icon="i-lucide-plus"
@@ -112,7 +93,7 @@ function fieldsCount(form: Form): number {
       >
         Создать форму
       </UButton>
-    </div>
+    </AppEmptyState>
 
     <ul
       v-else

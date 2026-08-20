@@ -119,55 +119,23 @@ function openDetails(response: FormResponse) {
       />
     </div>
 
-    <UAlert
+    <AppErrorState
       v-else-if="error"
       class="mt-8"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-alert-triangle"
       title="Не удалось загрузить ответы"
       :description="error.message"
-    >
-      <template #actions>
-        <UButton
-          size="sm"
-          color="error"
-          variant="subtle"
-          @click="refresh()"
-        >
-          Повторить
-        </UButton>
-      </template>
-    </UAlert>
+      retryable
+      @retry="refresh()"
+    />
 
-    <div
+    <AppEmptyState
       v-else-if="responses.length === 0"
-      class="mt-16 flex flex-col items-center gap-3 text-center"
-    >
-      <UIcon
-        :name="isFiltered ? 'i-lucide-search-x' : 'i-lucide-inbox'"
-        class="size-10 text-neutral-400"
-      />
-      <p class="text-lg font-medium">
-        {{ isFiltered ? 'Ничего не найдено' : 'Ответов пока нет' }}
-      </p>
-      <p class="max-w-sm text-sm text-neutral-500">
-        {{ isFiltered
-          ? 'Под выбранные условия не подходит ни один ответ.'
-          : 'Здесь будут появляться результаты, как только пользователи начнут заполнять форму.' }}
-      </p>
-
-      <UButton
-        v-if="isFiltered"
-        icon="i-lucide-filter-x"
-        size="sm"
-        color="neutral"
-        variant="subtle"
-        @click="resetFilters"
-      >
-        Сбросить фильтры
-      </UButton>
-    </div>
+      class="mt-16"
+      title="Ответов пока нет"
+      description="Здесь будут появляться результаты, как только пользователи начнут заполнять форму"
+      :filtered="isFiltered"
+      @reset="resetFilters"
+    />
 
     <template v-else>
       <UTable

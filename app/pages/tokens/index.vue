@@ -61,48 +61,29 @@ async function removeToken(id: string) {
       />
     </div>
 
-    <UAlert
+    <AppErrorState
       v-else-if="error"
       class="mt-8"
-      color="error"
-      variant="subtle"
-      icon="i-lucide-alert-triangle"
       title="Не удалось загрузить токены"
       :description="error.message"
-    >
-      <template #actions>
-        <UButton
-          size="sm"
-          color="error"
-          variant="subtle"
-          @click="refresh()"
-        >
-          Повторить
-        </UButton>
-      </template>
-    </UAlert>
+      retryable
+      @retry="refresh()"
+    />
 
-    <div
+    <AppEmptyState
       v-else-if="isEmpty"
-      class="mt-16 flex flex-col items-center gap-3 text-center"
+      class="mt-16"
+      icon="i-lucide-key-round"
+      title="Токенов пока нет"
+      description="Создайте токен, чтобы обращаться к API"
     >
-      <UIcon
-        name="i-lucide-key-round"
-        class="size-10 text-muted"
-      />
-      <p class="text-lg font-medium">
-        Токенов пока нет
-      </p>
-      <p class="max-w-sm text-sm text-muted">
-        Создайте токен, чтобы обращаться к API от имени вашего аккаунта.
-      </p>
       <UButton
         icon="i-lucide-plus"
         @click="isCreateOpen = true"
       >
         Создать токен
       </UButton>
-    </div>
+    </AppEmptyState>
 
     <ul
       v-else

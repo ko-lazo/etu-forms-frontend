@@ -92,10 +92,7 @@ const { copied, copy } = useCopyToClipboard()
     </template>
 
     <template #body>
-      <UAlert
-        color="error"
-        variant="subtle"
-        icon="i-lucide-alert-triangle"
+      <AppErrorState
         title="Не удалось загрузить форму"
         :description="error.message"
       />

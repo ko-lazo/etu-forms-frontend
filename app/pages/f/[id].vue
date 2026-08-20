@@ -53,11 +53,8 @@ const { copied, copy } = useCopyToClipboard()
         <USkeleton class="h-40 w-full" />
       </div>
 
-      <UAlert
+      <AppErrorState
         v-else-if="error"
-        color="error"
-        variant="subtle"
-        icon="i-lucide-alert-triangle"
         title="Форма не найдена"
         description="Проверьте ссылку или обратитесь к тому, кто её отправил."
       />
