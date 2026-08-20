@@ -1,21 +1,19 @@
 import type { FormPage } from '../schema/form-schema'
-import type { FormAnswers } from './answers'
-import { isEmptyAnswer } from './answers'
+import type { FormInput } from './input'
+import { isEmptyValue } from './input'
 
 const REQUIRED_MESSAGE = 'Обязательное поле'
 
-export function validateRequiredAnswers(
+export function validateRequiredFields(
   pages: FormPage[],
-  answers: FormAnswers
+  input: FormInput
 ): Record<string, string> {
   const errors: Record<string, string> = {}
 
   for (const element of pages.flatMap(page => page.elements)) {
     if (!element.required) continue
 
-    const answer = answers[element.name]
-
-    if (answer === undefined || isEmptyAnswer(answer)) {
+    if (isEmptyValue(input[element.name])) {
       errors[element.name] = REQUIRED_MESSAGE
     }
   }

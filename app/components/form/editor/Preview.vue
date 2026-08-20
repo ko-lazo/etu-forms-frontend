@@ -7,12 +7,12 @@ const props = defineProps<{
 }>()
 
 const {
-  answers,
+  input,
   errors,
   submitted,
   submitting,
   visiblePages,
-  setAnswer,
+  setValue,
   submit,
   reset
 } = useFormRuntime({
@@ -83,10 +83,10 @@ const allPagesHidden = computed(() =>
       ref="renderer"
       :title="model.title || 'Форма без названия'"
       :pages="visiblePages"
-      :answers="answers"
+      :input="input"
       :errors="errors"
       :submitting="submitting"
-      @update:answer="setAnswer"
+      @update:value="setValue"
       @submit="onSubmit"
     />
   </div>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
 import type { FormPage } from '~/features/forms/schema/form-schema'
-import type { FormAnswers } from '~/features/forms/runtime/answers'
+import type { FormInput } from '~/features/forms/runtime/input'
 
 const props = withDefaults(defineProps<{
   pages: FormPage[]
-  answers: FormAnswers
+  input: FormInput
   errors: Record<string, string>
   title?: string
   submitting?: boolean
@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  'update:answer': [name: string, value: unknown]
+  'update:value': [name: string, value: unknown]
   'submit': []
 }>()
 
@@ -92,9 +92,9 @@ defineExpose({ scrollToFirstError })
           >
             <FormRuntimeFieldRenderer
               :element="field"
-              :model-value="answers[field.name]"
+              :model-value="input[field.name]"
               :error="errors[field.name]"
-              @update:model-value="(value) => emit('update:answer', field.name, value)"
+              @update:model-value="(value) => emit('update:value', field.name, value)"
             />
           </div>
         </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/features/forms/api'
-import { useFormResponsePersistence } from '~/features/form-responses/useFormResponsePersistence'
+import { useFormResponseStorage } from '~/features/form-responses/useFormResponseStorage'
 import { useFormRuntime } from '~/features/forms/runtime/useFormRuntime'
 
 definePageMeta({ layout: 'default' })
@@ -12,20 +12,19 @@ const formsApi = useFormsApi()
 
 const { data: form, status, error } = await useAsyncData(`public-form-${formId}`, () => formsApi.get(formId))
 
-const { persistence, responseId } = useFormResponsePersistence(formId)
+const { storage, responseId, saving, saved } = useFormResponseStorage(formId)
 
 const {
-  answers,
+  input,
   errors,
   submitted,
   submitting,
-  saveState,
   visiblePages,
-  setAnswer,
+  setValue,
   submit
 } = useFormRuntime({
   schema: () => form.value?.schema,
-  persistence
+  storage
 })
 
 const renderer = ref<{ scrollToFirstError: () => void } | null>(null)
@@ -79,10 +78,10 @@ async function copyResumeUrl() {
         ref="renderer"
         :title="form.title"
         :pages="visiblePages"
-        :answers="answers"
+        :input="input"
         :errors="errors"
         :submitting="submitting"
-        @update:answer="setAnswer"
+        @update:value="setValue"
         @submit="onSubmit"
       >
         <template
@@ -110,10 +109,10 @@ async function copyResumeUrl() {
         </template>
 
         <template #status>
-          <template v-if="saveState === 'saving'">
+          <template v-if="saving">
             Сохранение...
           </template>
-          <template v-else-if="saveState === 'saved'">
+          <template v-else-if="saved">
             Черновик сохранён
           </template>
         </template>
