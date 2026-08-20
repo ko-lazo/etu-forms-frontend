@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { EditorPage } from '~/types/form/editor.ts'
+import type { EditorPage } from '~/types/form/editor'
 import { ELEMENT_TYPES, createElement } from './element-meta.ts'
 import { createUid } from '~/utils/uid.ts'
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor.ts'
+import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor'
 import type { BuilderMode } from './mode.ts'
-import { renameConditionField } from '~/utils/condition.ts'
+import { renameConditionField } from '~/features/forms/schema/evaluate'
 
 const model = defineModel<EditorModel>({ required: true })
 

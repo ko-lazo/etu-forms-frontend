@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { FormElement } from '~/types/form/schema/form-schema.schema'
+import type { FormElement } from '~/features/forms/schema/form-schema'
 
 const props = defineProps<{
   element: FormElement

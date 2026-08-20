@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EditorElement } from '~/types/form/editor.ts'
+import type { EditorElement } from '~/types/form/editor'
 import { metaFor } from './element-meta.ts'
 
 const element = defineModel<EditorElement | null>({ required: true })

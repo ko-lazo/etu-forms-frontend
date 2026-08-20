@@ -1,6 +1,6 @@
-import type { FormResponseAnswerValue } from '~/types/form/response'
-
-export type FormAnswers = Record<string, FormResponseAnswerValue>
+import type { Schemas } from '~/api/types'
+export type FormAnswerValue = Schemas['FormResponseAnswer']
+export type FormAnswers = Record<string, FormAnswerValue>
 
 export function isEmptyAnswer(value: unknown): boolean {
   if (value === undefined || value === null || value === '') return true

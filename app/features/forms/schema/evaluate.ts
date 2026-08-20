@@ -1,5 +1,5 @@
-import type { Condition, ConditionRule } from '~/types/form/schema/condition.schema'
-import { isEmptyAnswer } from '~/utils/answer'
+import type { Condition, ConditionRule } from './condition'
+import { isEmptyAnswer } from './answers'
 
 type Answers = Record<string, unknown>
 

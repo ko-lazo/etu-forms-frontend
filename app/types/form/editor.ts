@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import type { FormElement, FormPage } from './schema/form-schema.schema'
-import { formSchemaObject } from './schema/form-schema.schema'
+import type { FormElement, FormPage } from '~/features/forms/schema/form-schema'
+import { formSchemaObject } from '~/features/forms/schema/form-schema'
 
 export const formEditorSchema = z.object({
   id: z.uuid().optional(),

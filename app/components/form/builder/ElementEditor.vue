@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EditorElement } from '~/types/form/editor.ts'
+import type { EditorElement } from '~/types/form/editor'
 
 const element = defineModel<EditorElement>({ required: true })
 

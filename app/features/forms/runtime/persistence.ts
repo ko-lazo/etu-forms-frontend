@@ -1,14 +1,21 @@
-import type { FormAnswers } from '~/utils/answer'
+import type { FormAnswers } from '~/features/forms/schema/answers'
 
 export interface FormRuntimeDraft {
   answers: FormAnswers
   submitted: boolean
 }
 
-/**
- * Способ хранения ответов.
- * публичная страница передаёт API-реализацию, предпросмотр - заглушку.
- */
+export class AnswersRejectedError extends Error {
+  readonly fieldErrors: Record<string, string>
+
+  constructor(fieldErrors: Record<string, string>) {
+    super('Ответ отклонён')
+
+    this.name = 'AnswersRejectedError'
+    this.fieldErrors = fieldErrors
+  }
+}
+
 export interface FormRuntimePersistence {
   loadDraft?: () => Promise<FormRuntimeDraft | null>
   saveDraft?: (answers: FormAnswers) => Promise<void>
@@ -16,7 +23,7 @@ export interface FormRuntimePersistence {
 }
 
 /**
- * Предпросмотр: ничего не загружает, не сохраняет и не отправляет.
+ * Предпросмотр формы
  */
 export function createPreviewPersistence(): FormRuntimePersistence {
   return {

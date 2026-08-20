@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { EditorModel } from '~/types/form/editor.ts'
-import { createPreviewPersistence } from '~/utils/form-runtime-persistence.ts'
+import type { EditorModel } from '~/types/form/editor'
+import { createPreviewPersistence } from '~/features/forms/runtime/persistence'
+import { useFormRuntime } from '~/features/forms/runtime/useFormRuntime'
 
 const props = defineProps<{
   model: EditorModel

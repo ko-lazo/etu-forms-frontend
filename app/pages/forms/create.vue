@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useFormsApi } from '~/api/form.ts'
+import { useFormsApi } from '~/features/forms/api'
 
 definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: создание' })
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { Form } from '~/types/form/form'
-import { useFormsApi } from '~/api/form.ts'
+import type { Form } from '~/features/forms/types'
+import { useFormsApi } from '~/features/forms/api'
+import { FORM_STATUS_META } from '~/features/forms/constants'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Формы' })
 
@@ -31,12 +32,6 @@ async function removeForm(form: Form) {
   } finally {
     removing.value = null
   }
-}
-
-function statusOf(form: Form): { label: string, color: 'success' | 'neutral' | 'warning' } {
-  if (form.archivedAt) return { label: 'В архиве', color: 'warning' }
-  if (form.publishedAt) return { label: 'Опубликована', color: 'success' }
-  return { label: 'Черновик', color: 'neutral' }
 }
 
 function fieldsCount(form: Form): number {
@@ -137,11 +132,11 @@ function fieldsCount(form: Form): number {
               {{ form.title }}
             </p>
             <UBadge
-              :color="statusOf(form).color"
+              :color="FORM_STATUS_META[form.status].color"
               variant="subtle"
               size="sm"
             >
-              {{ statusOf(form).label }}
+              {{ FORM_STATUS_META[form.status].label }}
             </UBadge>
           </div>
           <p class="mt-0.5 text-sm text-neutral-500">

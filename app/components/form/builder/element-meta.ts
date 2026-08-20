@@ -1,7 +1,7 @@
-import type { FormElementType } from '~/types/form/schema/form-schema.schema.ts'
-import type { EditorElement } from '~/types/form/editor.ts'
+import type { FormElementType } from '~/features/forms/schema/form-schema'
+import type { EditorElement } from '~/types/form/editor'
 import { createUid } from '~/utils/uid.ts'
-import { applyValidationDefaults } from '~/utils/form-editor.ts'
+import { applyValidationDefaults } from '~/utils/form-editor'
 
 interface ElementTypeMeta {
   type: FormElementType

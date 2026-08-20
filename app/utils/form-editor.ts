@@ -1,8 +1,8 @@
 import { toRaw } from 'vue'
 import type { ZodError } from 'zod'
-import type { Form } from '~/types/form/form'
+import type { Form } from '~/features/forms/types'
 import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor'
-import type { FormSchemaDto } from '~/types/form/schema/form-schema.schema'
+import type { FormSchema } from '~/features/forms/schema/form-schema'
 import { formEditorSchema } from '~/types/form/editor'
 import { createUid } from '~/utils/uid'
 
@@ -26,7 +26,7 @@ export function applyValidationDefaults(element: EditorElement): EditorElement {
   return element
 }
 
-function withUids(schema: FormSchemaDto): { pages: EditorPage[] } {
+function withUids(schema: FormSchema): { pages: EditorPage[] } {
   return {
     pages: schema.pages.map(page => ({
       ...page,
@@ -57,7 +57,7 @@ export function formToEditorModel(form: Form): EditorModel {
 }
 
 /**
- * Приводит модель редактора к контракту API: валидирует её и вырезает
+ * Преобразует форму для API: валидирует её и вырезает
  * служебные поля редактора (`_uid`)
  */
 export function parseEditorModelToPayload(model: EditorModel) {

@@ -1,12 +1,17 @@
 import { z } from 'zod'
-import { conditionSchema } from '~/types/form/schema/condition.schema.ts'
+import { conditionSchema } from './condition'
+
+const MAX_PAGES = 50
+const MAX_ELEMENTS_PER_PAGE = 200
+
+export const formElementNameSchema = z
+  .string()
+  .min(1)
+  .max(100)
+  .regex(/^[a-zA-Z][a-zA-Z0-9_-]*$/)
 
 const baseFieldSchema = z.object({
-  name: z
-    .string()
-    .min(1)
-    .max(100)
-    .regex(/^[a-zA-Z][a-zA-Z0-9_-]*$/),
+  name: formElementNameSchema,
 
   label: z.string().min(1).max(500),
 
@@ -69,15 +74,37 @@ export const formPageSchema = z.object({
   name: z.string().min(1).max(100),
   title: z.string().optional(),
   visibleIf: conditionSchema.optional(),
-  elements: z.array(formElementSchema)
+  elements: z.array(formElementSchema).max(MAX_ELEMENTS_PER_PAGE)
 })
 
-export const formSchemaObject = z.object({
-  pages: z.array(formPageSchema).min(1)
-})
+export const formSchemaObject = z
+  .object({
+    pages: z.array(formPageSchema).min(1).max(MAX_PAGES)
+  })
+  .superRefine((schema, ctx) => {
+    validateUniqueElementNames(schema.pages, ctx)
+  })
 
-export type FormSchemaDto = z.infer<typeof formSchemaObject>
+export type FormSchema = z.infer<typeof formSchemaObject>
 export type FormElement = z.infer<typeof formElementSchema>
 export type FormElementType = FormElement['type']
 export type FormPage = z.infer<typeof formPageSchema>
 export type ChoiceOption = z.infer<typeof choiceOptionSchema>
+
+function validateUniqueElementNames(pages: FormPage[], ctx: z.RefinementCtx): void {
+  const names = new Set<string>()
+
+  pages.forEach((page, pageIndex) => {
+    page.elements.forEach((element, elementIndex) => {
+      if (names.has(element.name)) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Поле с именем "${element.name}" уже используется`,
+          path: ['pages', pageIndex, 'elements', elementIndex, 'name']
+        })
+      }
+
+      names.add(element.name)
+    })
+  })
+}

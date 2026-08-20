@@ -1,17 +1,17 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { FormPage, FormSchemaDto } from '~/types/form/schema/form-schema.schema'
-import type { FormResponseAnswerValue } from '~/types/form/response'
-import type { FormAnswers } from '~/utils/answer'
-import type { FormRuntimePersistence } from '~/utils/form-runtime-persistence'
-import { evaluateCondition } from '~/utils/condition'
-import { validateAnswers } from '~/utils/form-validation'
+import type { FormPage, FormSchema } from '~/features/forms/schema/form-schema'
+import type { FormAnswers, FormAnswerValue } from '~/features/forms/schema/answers'
+import type { FormRuntimePersistence } from './persistence'
+import { AnswersRejectedError } from './persistence'
+import { evaluateCondition } from '~/features/forms/schema/evaluate'
+import { validateRequiredAnswers } from '~/features/forms/schema/validate'
 
 const AUTOSAVE_DELAY = 800
 
 export type FormRuntimeSaveState = 'idle' | 'saving' | 'saved'
 
 interface UseFormRuntimeOptions {
-  schema: MaybeRefOrGetter<FormSchemaDto | null | undefined>
+  schema: MaybeRefOrGetter<FormSchema | null | undefined>
   persistence: FormRuntimePersistence
   autosaveDelay?: number
 }
@@ -59,7 +59,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   }
 
   function setAnswer(name: string, value: unknown) {
-    answers.value[name] = value as FormResponseAnswerValue
+    answers.value[name] = value as FormAnswerValue
     refreshShownErrors()
     scheduleSave()
   }
@@ -68,7 +68,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
     const shown = Object.keys(errors.value)
     if (shown.length === 0) return
 
-    const actual = validateAnswers(visiblePages.value, answers.value)
+    const actual = validateRequiredAnswers(visiblePages.value, answers.value)
     const next: Record<string, string> = {}
 
     for (const field of shown) {
@@ -88,7 +88,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   }
 
   async function submit(): Promise<boolean> {
-    errors.value = validateAnswers(visiblePages.value, answers.value)
+    errors.value = validateRequiredAnswers(visiblePages.value, answers.value)
 
     if (Object.keys(errors.value).length > 0) return false
 
@@ -97,6 +97,11 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
       await persistence.submit({ ...answers.value })
       submitted.value = true
       return true
+    } catch (error) {
+      if (!(error instanceof AnswersRejectedError)) throw error
+
+      errors.value = error.fieldErrors
+      return false
     } finally {
       submitting.value = false
     }
