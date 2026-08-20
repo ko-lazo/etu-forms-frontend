@@ -1,6 +1,6 @@
-import type { LoginRequest, User } from '~/types/auth'
-import { useAuthApi } from '~/api/auth.ts'
-import { authToken } from '~/store/auth.ts'
+import type { LoginRequest, User } from './types'
+import { useAuthApi } from './api'
+import { authToken } from './token'
 
 export function useAuth() {
   const authApi = useAuthApi()

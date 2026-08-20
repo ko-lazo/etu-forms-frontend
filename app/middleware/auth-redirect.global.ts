@@ -1,3 +1,5 @@
+import { useAuth } from '~/features/auth/useAuth'
+
 export default defineNuxtRouteMiddleware((to) => {
   const { isAuthenticated } = useAuth()
 

@@ -1,5 +1,5 @@
 import { ApiError, type ApiErrorResponse } from '~/api/error'
-import { authToken } from '~/store/auth'
+import { authToken } from '~/features/auth/token'
 
 export function useApi() {
   const config = useRuntimeConfig()

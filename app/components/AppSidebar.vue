@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+import { useAuth } from '~/features/auth/useAuth'
 
 const { user, logout } = useAuth()
 

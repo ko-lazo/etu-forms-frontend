@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
+import type { LoginRequest } from '~/features/auth/types'
+import { useAuth } from '~/features/auth/useAuth'
 
 const { login } = useAuth()
-
-interface LoginFormState {
-  email: string
-  password: string
-}
 
 const loading = ref(false)
 const error = ref<string | null>(null)
 
 async function submit(
-  event: FormSubmitEvent<LoginFormState>
+  event: FormSubmitEvent<LoginRequest>
 ) {
   error.value = null
   loading.value = true
