@@ -1,3 +1,5 @@
+import type { FormResponseListQuery } from './api'
+
 export const RESPONSE_STATUS_FILTER = {
   ALL: 'all',
   SUBMITTED: 'submitted',
@@ -12,11 +14,7 @@ export const RESPONSE_STATUS_FILTER_ITEMS = [
   { label: 'Только незавершённые', value: RESPONSE_STATUS_FILTER.UNSUBMITTED }
 ]
 
-export interface ResponseFilters {
-  status: ResponseStatusFilter
-}
-
-export const SUBMITTED_BY_STATUS: Record<ResponseStatusFilter, boolean | undefined> = {
+export const SUBMITTED_BY_STATUS: Record<ResponseStatusFilter, FormResponseListQuery['submitted']> = {
   [RESPONSE_STATUS_FILTER.ALL]: undefined,
   [RESPONSE_STATUS_FILTER.SUBMITTED]: true,
   [RESPONSE_STATUS_FILTER.UNSUBMITTED]: false

@@ -2,10 +2,9 @@
 import type { TableColumn, TableRow } from '@nuxt/ui'
 import type { FormResponse } from '~/features/form-responses/types'
 import type { FormResponseListQuery } from '~/features/form-responses/api'
-import type { ResponseFilters } from '~/features/form-responses/constants'
 import { useFormsApi } from '~/features/forms/api'
 import { useFormResponsesApi } from '~/features/form-responses/api'
-import { RESPONSE_STATUS_FILTER, RESPONSE_STATUS_FILTER_ITEMS, SUBMITTED_BY_STATUS } from '~/features/form-responses/constants'
+import { createResponseFilters, toResponseListQuery } from '~/features/form-responses/filters'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Ответы' })
 
@@ -20,10 +19,7 @@ setBreadcrumbs([{ label: 'Формы', to: '/forms' }, { label: 'Загрузк�
 const formsApi = useFormsApi()
 const responsesApi = useFormResponsesApi(formId)
 
-const page = ref(1)
-const filters = reactive<ResponseFilters>({
-  status: RESPONSE_STATUS_FILTER.ALL
-})
+const { filters, page, isActive: isFiltered, reset: resetFilters } = useFilters(createResponseFilters)
 
 const selectedResponse = ref<FormResponse | null>(null)
 const isDetailsOpen = ref(false)
@@ -39,22 +35,14 @@ watch(form, (value) => {
 const listQuery = computed<FormResponseListQuery>(() => ({
   page: page.value,
   limit: PAGE_SIZE,
-  submitted: SUBMITTED_BY_STATUS[filters.status]
+  ...toResponseListQuery(filters.value)
 }))
-
-function fetchResponses() {
-  return responsesApi.list(listQuery.value)
-}
 
 const { data, status, error, refresh } = await useAsyncData(
   `form-${formId}-responses`,
-  fetchResponses,
+  () => responsesApi.list(listQuery.value),
   { watch: [listQuery] }
 )
-
-watch(filters, () => {
-  page.value = 1
-})
 
 const responses = computed(() => data.value?.data ?? [])
 const meta = computed(() => data.value?.meta)
@@ -112,13 +100,13 @@ function openDetails(response: FormResponse) {
       </UButton>
     </div>
 
-    <div class="mt-6">
-      <USelect
-        v-model="filters.status"
-        class="w-52"
-        :items="RESPONSE_STATUS_FILTER_ITEMS"
-      />
-    </div>
+    <FormResponseFilters
+      v-model="filters"
+      class="mt-6"
+      :fields="fields"
+      :active="isFiltered"
+      @reset="resetFilters"
+    />
 
     <div
       v-if="status === 'pending'"
@@ -157,15 +145,28 @@ function openDetails(response: FormResponse) {
       class="mt-16 flex flex-col items-center gap-3 text-center"
     >
       <UIcon
-        name="i-lucide-inbox"
+        :name="isFiltered ? 'i-lucide-search-x' : 'i-lucide-inbox'"
         class="size-10 text-neutral-400"
       />
       <p class="text-lg font-medium">
-        Ответов пока нет
+        {{ isFiltered ? 'Ничего не найдено' : 'Ответов пока нет' }}
       </p>
       <p class="max-w-sm text-sm text-neutral-500">
-        Здесь будут появляться результаты, как только пользователи начнут заполнять форму.
+        {{ isFiltered
+          ? 'Под выбранные условия не подходит ни один ответ.'
+          : 'Здесь будут появляться результаты, как только пользователи начнут заполнять форму.' }}
       </p>
+
+      <UButton
+        v-if="isFiltered"
+        icon="i-lucide-filter-x"
+        size="sm"
+        color="neutral"
+        variant="subtle"
+        @click="resetFilters"
+      >
+        Сбросить фильтры
+      </UButton>
     </div>
 
     <template v-else>
