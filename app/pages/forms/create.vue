@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useFormsApi } from '~/api/form.ts'
+import { useFormsApi } from '~/features/forms/api'
+import { createEmptyEditorModel, formatEditorError, parseEditorModel } from '~/features/forms/editor/editor-model'
 
 definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: создание' })
 
@@ -10,7 +11,7 @@ const formsApi = useFormsApi()
 const toast = useToast()
 const saving = ref(false)
 
-const model = ref(createEmptyFormEditorModel())
+const model = ref(createEmptyEditorModel())
 
 const { isDirty, markSaved, reset } = useUnsavedChanges(model)
 
@@ -20,12 +21,12 @@ async function save() {
     return
   }
 
-  const payload = parseEditorModelToPayload(model.value)
+  const payload = parseEditorModel(model.value)
 
   if (!payload.success) {
     toast.add({
       title: 'Форма заполнена некорректно',
-      description: formatValidationError(payload.error),
+      description: formatEditorError(payload.error),
       color: 'error'
     })
     return
@@ -46,7 +47,7 @@ async function save() {
 </script>
 
 <template>
-  <FormBuilderMain
+  <FormEditor
     v-model="model"
     :saving="saving"
     :dirty="isDirty"

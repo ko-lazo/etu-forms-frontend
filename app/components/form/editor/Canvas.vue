@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
-import type { EditorPage } from '~/types/form/editor.ts'
-import { ELEMENT_TYPES, createElement } from './element-meta.ts'
+import type { EditorPage } from '~/features/forms/editor/editor-model'
+import { ELEMENT_TYPES, createElement } from '~/features/forms/editor/element-types'
 import { createUid } from '~/utils/uid.ts'
 
 const pages = defineModel<EditorPage[]>('pages', { required: true })
@@ -170,7 +170,7 @@ function onDragEnd() {
 
     <template v-else>
       <ul class="space-y-2">
-        <FormBuilderElementRow
+        <FormEditorElementRow
           v-for="(element, index) in activePage.elements"
           :key="element._uid"
           :element="element"

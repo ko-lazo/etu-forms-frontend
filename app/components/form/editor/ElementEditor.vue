@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EditorElement } from '~/types/form/editor.ts'
+import type { EditorElement } from '~/features/forms/editor/editor-model'
 
 const element = defineModel<EditorElement>({ required: true })
 
@@ -204,7 +204,7 @@ function removeChoice(index: number) {
 
     <USeparator />
 
-    <FormBuilderConditionEditor
+    <FormEditorConditionEditor
       v-model="element.visibleIf"
       :available-fields="conditionFields"
     />

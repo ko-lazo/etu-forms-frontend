@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import type { EditorModel } from '~/types/form/editor.ts'
-import { createPreviewPersistence } from '~/utils/form-runtime-persistence.ts'
+import type { EditorModel } from '~/features/forms/editor/editor-model'
+import { useFormRuntime } from '~/features/forms/runtime/useFormRuntime'
 
 const props = defineProps<{
   model: EditorModel
 }>()
 
 const {
-  answers,
+  input,
   errors,
   submitted,
   submitting,
   visiblePages,
-  setAnswer,
+  setValue,
   submit,
   reset
 } = useFormRuntime({
-  schema: () => props.model.schema,
-  persistence: createPreviewPersistence()
+  schema: () => props.model.schema
 })
 
 const renderer = ref<{ scrollToFirstError: () => void } | null>(null)
@@ -84,10 +83,10 @@ const allPagesHidden = computed(() =>
       ref="renderer"
       :title="model.title || 'Форма без названия'"
       :pages="visiblePages"
-      :answers="answers"
+      :input="input"
       :errors="errors"
       :submitting="submitting"
-      @update:answer="setAnswer"
+      @update:value="setValue"
       @submit="onSubmit"
     />
   </div>

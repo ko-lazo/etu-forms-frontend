@@ -378,8 +378,8 @@ export interface paths {
          *     со схемой формы (`validateFormResponse`) — типы, `required`, границы
          *     длины и чисел, допустимые `choices`, отсутствие неизвестных полей.
          *
-         *     Ошибки второй ступени приходят как 400 со списком `{ field, message }`
-         *     в поле `details`.
+         *     Ошибки второй ступени приходят как 400 со списком
+         *     `FormResponseValidationError` в поле `details`.
          */
         post: operations["submitFormResponse"];
         delete?: never;
@@ -673,7 +673,8 @@ export interface components {
              *     передан. Для ошибок валидации это `ZodError.issues` (Zod 4) как
              *     есть: `path` — массив сегментов пути до поля, для вложенных схем
              *     глубокий (`["schema", "pages", 0, "elements", 1, "name"]`). Для
-             *     ошибок сверки ответа со схемой формы — список `{ field, message }`.
+             *     ошибок сверки ответа со схемой формы — список
+             *     `FormResponseValidationError`.
              */
             details?: unknown;
             /** @description Присутствует только при `DEBUG=true` */
@@ -945,6 +946,36 @@ export interface components {
             archivedAt: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        /**
+         * @description Ошибка сверки ответа со схемой формы. Приходит списком в `details`
+         *     ответа 400 от `POST` и `PATCH` ответов формы.
+         *
+         *     Текст для пользователя клиент собирает сам по `code` и `params`;
+         *     `message` — подсказка для разработчика и на экран не выводится.
+         * @example {
+         *       "field": "nick",
+         *       "code": "TOO_SHORT",
+         *       "message": "Answer must contain at least 5 characters",
+         *       "params": {
+         *         "minLength": 5
+         *       }
+         *     }
+         */
+        FormResponseValidationError: {
+            /** @description Имя элемента схемы либо неизвестный ключ из `answers` */
+            field: string;
+            /** @enum {string} */
+            code: "REQUIRED" | "UNKNOWN_FIELD" | "INVALID_TYPE" | "INVALID_EMAIL" | "TOO_SHORT" | "TOO_LONG" | "TOO_SMALL" | "TOO_LARGE" | "INVALID_CHOICE";
+            message: string;
+            /**
+             * @description Значения, участвующие в сообщении: `expected` у `INVALID_TYPE`,
+             *     `minLength` / `maxLength` у длины, `min` / `max` у числа,
+             *     `value` у `INVALID_CHOICE`.
+             */
+            params?: {
+                [key: string]: string | number;
+            };
         };
         /** @description Значение одного ответа */
         FormResponseAnswer: string | number | boolean | string[];

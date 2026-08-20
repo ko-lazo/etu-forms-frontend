@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SelectItem } from '@nuxt/ui'
-import type { Condition, ConditionOperator, ConditionRule } from '~/types/form/schema/condition.schema'
-import type { FormElement } from '~/types/form/schema/form-schema.schema'
+import type { Condition, ConditionOperator, ConditionRule } from '~/features/forms/schema/condition'
+import type { FormElement } from '~/features/forms/schema/form-schema'
 
 const props = defineProps<{
   modelValue: Condition | undefined
