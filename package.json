@@ -9,7 +9,9 @@
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "api:types": "openapi-typescript openapi.yaml -o app/api/schema.d.ts",
+    "api:sync": "cp ../backend/docs/openapi.yaml openapi.yaml && npm run api:types"
   },
   "dependencies": {
     "@iconify-json/lucide": "^1.2.121",
@@ -22,6 +24,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.16.0",
     "eslint": "^10.8.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.9"
   }
