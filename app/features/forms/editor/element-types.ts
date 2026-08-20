@@ -34,8 +34,7 @@ export const ELEMENT_TYPES: ElementTypeMeta[] = [
   { type: 'dropdown', label: 'Выпадающий список', icon: 'i-lucide-chevron-down-circle', hasChoices: true },
   { type: 'radiogroup', label: 'Выбор одного варианта', icon: 'i-lucide-circle-dot', hasChoices: true },
   { type: 'checkbox', label: 'Выбор нескольких вариантов', icon: 'i-lucide-square-check', hasChoices: true }
-  // Загрузка файлов ещё не поддержана backend: элемент рендерится и валидируется,
-  // но форму с ним API отвергнет, поэтому в палитре он скрыт.
+  // todo files
   // { type: 'file', label: 'Файл', icon: 'i-lucide-paperclip', hasChoices: false }
 ]
 
