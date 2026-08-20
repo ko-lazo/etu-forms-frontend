@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { TableColumn, TableRow } from '@nuxt/ui'
 import type { FormResponse } from '~/features/form-responses/types'
+import type { FormResponseListQuery } from '~/features/form-responses/api'
+import type { ResponseFilters } from '~/features/form-responses/constants'
 import { useFormsApi } from '~/features/forms/api'
 import { useFormResponsesApi } from '~/features/form-responses/api'
+import { RESPONSE_STATUS_FILTER, RESPONSE_STATUS_FILTER_ITEMS, SUBMITTED_BY_STATUS } from '~/features/form-responses/constants'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'Ответы' })
+
+const PAGE_SIZE = 20
 
 const route = useRoute()
 const formId = route.params.id as string
@@ -16,11 +21,12 @@ const formsApi = useFormsApi()
 const responsesApi = useFormResponsesApi(formId)
 
 const page = ref(1)
-const limit = 20
-const submissionFilter = ref<'all' | 'submitted' | 'draft'>('all')
+const filters = reactive<ResponseFilters>({
+  status: RESPONSE_STATUS_FILTER.ALL
+})
 
 const selectedResponse = ref<FormResponse | null>(null)
-const isSlideoverOpen = ref(false)
+const isDetailsOpen = ref(false)
 
 const { data: form } = await useAsyncData(`form-${formId}-meta`, () => formsApi.get(formId))
 
@@ -30,33 +36,36 @@ watch(form, (value) => {
   }
 }, { immediate: true })
 
+const listQuery = computed<FormResponseListQuery>(() => ({
+  page: page.value,
+  limit: PAGE_SIZE,
+  submitted: SUBMITTED_BY_STATUS[filters.status]
+}))
+
+function fetchResponses() {
+  return responsesApi.list(listQuery.value)
+}
+
 const { data, status, error, refresh } = await useAsyncData(
-  `form-${formId}-responses-${page.value}`,
-  () => responsesApi.list({ page: page.value, limit }),
-  { watch: [page] }
+  `form-${formId}-responses`,
+  fetchResponses,
+  { watch: [listQuery] }
 )
 
-const responses = computed(() => {
-  const all = data.value?.data ?? []
-  if (submissionFilter.value === 'submitted') return all.filter(r => r.submittedAt)
-  if (submissionFilter.value === 'draft') return all.filter(r => !r.submittedAt)
-  return all
+watch(filters, () => {
+  page.value = 1
 })
+
+const responses = computed(() => data.value?.data ?? [])
 const meta = computed(() => data.value?.meta)
 
-const allFields = computed(() => {
-  if (!form.value) return []
-  return form.value.schema.pages.flatMap(p => p.elements)
-})
+const fields = computed(() => form.value?.schema.pages.flatMap(page => page.elements) ?? [])
 
 const columns = computed<TableColumn<FormResponse>[]>(() => [
   {
     accessorKey: 'submittedAt',
     header: 'Дата отправки',
-    cell: ({ row }: { row: TableRow<FormResponse> }) => {
-      const value = row.original.submittedAt
-      return value ? new Date(value).toLocaleString('ru-RU') : '—'
-    }
+    cell: ({ row }: { row: TableRow<FormResponse> }) => formatDateTime(row.original.submittedAt)
   },
   {
     accessorKey: 'id',
@@ -75,16 +84,9 @@ const columns = computed<TableColumn<FormResponse>[]>(() => [
   }
 ])
 
-function formatAnswer(value: unknown): string {
-  if (value === undefined || value === null || value === '') return '—'
-  if (Array.isArray(value)) return value.join(', ')
-  if (typeof value === 'boolean') return value ? 'Да' : 'Нет'
-  return String(value)
-}
-
-function openResponseDetails(response: FormResponse) {
+function openDetails(response: FormResponse) {
   selectedResponse.value = response
-  isSlideoverOpen.value = true
+  isDetailsOpen.value = true
 }
 </script>
 
@@ -112,13 +114,9 @@ function openResponseDetails(response: FormResponse) {
 
     <div class="mt-6">
       <USelect
-        v-model="submissionFilter"
+        v-model="filters.status"
         class="w-52"
-        :items="[
-          { label: 'Все ответы', value: 'all' },
-          { label: 'Только отправленные', value: 'submitted' },
-          { label: 'Только черновики', value: 'draft' }
-        ]"
+        :items="RESPONSE_STATUS_FILTER_ITEMS"
       />
     </div>
 
@@ -183,7 +181,7 @@ function openResponseDetails(response: FormResponse) {
               variant="subtle"
               size="sm"
               icon="i-lucide-eye"
-              @click="openResponseDetails(row.original)"
+              @click="openDetails(row.original)"
             >
               Смотреть
             </UButton>
@@ -198,42 +196,15 @@ function openResponseDetails(response: FormResponse) {
         <UPagination
           v-model:page="page"
           :total="meta.total"
-          :items-per-page="limit"
+          :items-per-page="PAGE_SIZE"
         />
       </div>
     </template>
 
-    <USlideover
-      v-model:open="isSlideoverOpen"
-      title="Детали ответа"
-      description="Полный список заполненных полей пользователя"
-    >
-      <template #body>
-        <div
-          v-if="selectedResponse"
-          class="space-y-6"
-        >
-          <div class="bg-neutral-50 dark:bg-neutral-900 p-3 rounded-lg text-xs text-neutral-500 space-y-1">
-            <p><strong>ID ответа:</strong> {{ selectedResponse.id }}</p>
-            <p><strong>Отправлено:</strong> {{ selectedResponse.submittedAt ? new Date(selectedResponse.submittedAt).toLocaleString('ru-RU') : '—' }}</p>
-          </div>
-
-          <div class="space-y-4 divide-y divide-neutral-100 dark:divide-neutral-800">
-            <div
-              v-for="field in allFields"
-              :key="field.name"
-              class="pt-3 first:pt-0"
-            >
-              <p class="text-xs font-medium text-neutral-400 uppercase tracking-wider">
-                {{ field.label }}
-              </p>
-              <p class="mt-1 text-sm font-medium text-neutral-900 dark:text-neutral-100 break-words">
-                {{ formatAnswer(selectedResponse.answers[field.name]) }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </template>
-    </USlideover>
+    <FormResponseDetails
+      v-model:open="isDetailsOpen"
+      :response="selectedResponse"
+      :fields="fields"
+    />
   </UContainer>
 </template>

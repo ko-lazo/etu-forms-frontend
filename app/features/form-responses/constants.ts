@@ -1,13 +1,23 @@
-export const RESPONSE_FILTER = {
+export const RESPONSE_STATUS_FILTER = {
   ALL: 'all',
   SUBMITTED: 'submitted',
   UNSUBMITTED: 'unsubmitted'
 } as const
 
-export type ResponseFilter = (typeof RESPONSE_FILTER)[keyof typeof RESPONSE_FILTER]
+export type ResponseStatusFilter = (typeof RESPONSE_STATUS_FILTER)[keyof typeof RESPONSE_STATUS_FILTER]
 
-export const RESPONSE_FILTER_ITEMS = [
-  { label: 'Все ответы', value: RESPONSE_FILTER.ALL },
-  { label: 'Только отправленные', value: RESPONSE_FILTER.SUBMITTED },
-  { label: 'Только черновики', value: RESPONSE_FILTER.UNSUBMITTED }
+export const RESPONSE_STATUS_FILTER_ITEMS = [
+  { label: 'Все ответы', value: RESPONSE_STATUS_FILTER.ALL },
+  { label: 'Только отправленные', value: RESPONSE_STATUS_FILTER.SUBMITTED },
+  { label: 'Только незавершённые', value: RESPONSE_STATUS_FILTER.UNSUBMITTED }
 ]
+
+export interface ResponseFilters {
+  status: ResponseStatusFilter
+}
+
+export const SUBMITTED_BY_STATUS: Record<ResponseStatusFilter, boolean | undefined> = {
+  [RESPONSE_STATUS_FILTER.ALL]: undefined,
+  [RESPONSE_STATUS_FILTER.SUBMITTED]: true,
+  [RESPONSE_STATUS_FILTER.UNSUBMITTED]: false
+}
