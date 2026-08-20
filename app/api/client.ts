@@ -1,4 +1,5 @@
 import { ApiError, type ApiErrorResponse } from '~/api/error'
+import { applyQuery } from '~/api/query'
 import { authToken } from '~/features/auth/token'
 
 export function useApi() {
@@ -7,19 +8,21 @@ export function useApi() {
   return $fetch.create({
     baseURL: config.public.apiBaseUrl,
 
-    onRequest({ options }) {
+    onRequest(context) {
+      applyQuery(context)
+
       if (!authToken.value) {
         return
       }
 
-      const headers = new Headers(options.headers)
+      const headers = new Headers(context.options.headers)
 
       headers.set(
         'Authorization',
         `Bearer ${authToken.value}`
       )
 
-      options.headers = headers
+      context.options.headers = headers
     },
 
     onResponseError({ response }) {
