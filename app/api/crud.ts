@@ -1,41 +1,21 @@
 import type { HttpClient } from './http'
-import type { PaginatedResult } from '~/types/api'
+import type { ListQuery, PaginatedResult } from './types'
 
 interface CrudEntity {
   id: string
 }
 
-export interface ListParams {
-  page?: number
-  limit?: number
-  [key: string]: string | number | boolean | undefined
-}
-
-export function toQueryString(params?: ListParams): string {
-  if (!params) return ''
-
-  const query = new URLSearchParams()
-
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== '') {
-      query.set(key, String(value))
-    }
-  }
-
-  const result = query.toString()
-  return result ? `?${result}` : ''
-}
-
 export function createCrudApi<
   TEntity extends CrudEntity,
-  TSave extends Record<string, unknown>
+  TSave extends Record<string, unknown>,
+  TQuery extends ListQuery = ListQuery
 >(
   http: HttpClient,
   resource: string
 ) {
   return {
-    list(params?: ListParams) {
-      return http.get<PaginatedResult<TEntity>>(`${resource}${toQueryString(params)}`)
+    list(query?: TQuery) {
+      return http.get<PaginatedResult<TEntity>>(resource, { query })
     },
 
     get(id: string) {
@@ -44,10 +24,10 @@ export function createCrudApi<
 
     save(data: TSave & { id?: string }) {
       if (data.id) {
-        return http.patch<TEntity, TSave>(`${resource}/${data.id}`, data)
+        return http.patch<TEntity>(`${resource}/${data.id}`, data)
       }
 
-      return http.post<TEntity, TSave>(resource, data)
+      return http.post<TEntity>(resource, data)
     },
 
     remove(id: string) {

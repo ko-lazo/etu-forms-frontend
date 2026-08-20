@@ -1,50 +1,41 @@
 import type { NitroFetchOptions } from 'nitropack'
-import { useApi } from '~/api/client.ts'
+import { useApi } from '~/api/client'
 
-type FetchBodyType = NitroFetchOptions<string>['body']
+type RequestBody = NitroFetchOptions<string>['body']
+
+export type RequestOptions = Pick<
+  NitroFetchOptions<string>,
+  'query' | 'headers' | 'signal'
+>
 
 export interface HttpClient {
-  get<TResponse>(url: string): Promise<TResponse>
+  get<TResponse>(url: string, options?: RequestOptions): Promise<TResponse>
 
-  post<TResponse, TBody extends FetchBodyType = Record<string, unknown>>(
-    url: string,
-    body?: TBody
-  ): Promise<TResponse>
+  post<TResponse>(url: string, body?: RequestBody, options?: RequestOptions): Promise<TResponse>
 
-  patch<TResponse, TBody extends FetchBodyType = Record<string, unknown>>(
-    url: string,
-    body?: TBody
-  ): Promise<TResponse>
+  patch<TResponse>(url: string, body?: RequestBody, options?: RequestOptions): Promise<TResponse>
 
-  delete<TResponse>(url: string): Promise<TResponse>
+  delete<TResponse>(url: string, options?: RequestOptions): Promise<TResponse>
 }
 
 export function useHttp(): HttpClient {
   const api = useApi()
 
   return {
-    get<TResponse>(url: string) {
-      return api<TResponse>(url)
+    get<TResponse>(url: string, options?: RequestOptions) {
+      return api<TResponse>(url, options)
     },
 
-    post<TResponse, TBody extends FetchBodyType>(url: string, body?: TBody) {
-      return api<TResponse>(url, {
-        method: 'POST',
-        body
-      })
+    post<TResponse>(url: string, body?: RequestBody, options?: RequestOptions) {
+      return api<TResponse>(url, { ...options, method: 'POST', body })
     },
 
-    patch<TResponse, TBody extends FetchBodyType>(url: string, body?: TBody) {
-      return api<TResponse>(url, {
-        method: 'PATCH',
-        body
-      })
+    patch<TResponse>(url: string, body?: RequestBody, options?: RequestOptions) {
+      return api<TResponse>(url, { ...options, method: 'PATCH', body })
     },
 
-    delete<TResponse>(url: string) {
-      return api<TResponse>(url, {
-        method: 'DELETE'
-      })
+    delete<TResponse>(url: string, options?: RequestOptions) {
+      return api<TResponse>(url, { ...options, method: 'DELETE' })
     }
   }
 }

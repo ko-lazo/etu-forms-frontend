@@ -3,7 +3,7 @@ import type {
   LoginResponse,
   User
 } from '~/types/auth'
-import { useApi } from '~/api/client.ts'
+import { useApi } from '~/api/client'
 
 export function useAuthApi() {
   const api = useApi()

@@ -1,13 +1,15 @@
+import type { Schemas } from './types'
+
 export interface ApiErrorResponse {
   message: string
-  code?: string
-  errors?: Record<string, string[]>
+  code?: Schemas['DomainError']['code']
+  details?: unknown
 }
 
 export class ApiError extends Error {
   readonly status: number
-  readonly code?: string
-  readonly errors?: Record<string, string[]>
+  readonly code?: Schemas['DomainError']['code']
+  readonly details?: unknown
 
   constructor(
     status: number,
@@ -18,6 +20,10 @@ export class ApiError extends Error {
     this.name = 'ApiError'
     this.status = status
     this.code = response.code
-    this.errors = response.errors
+    this.details = response.details
   }
+}
+
+export function isApiError(error: unknown): error is ApiError {
+  return error instanceof ApiError
 }

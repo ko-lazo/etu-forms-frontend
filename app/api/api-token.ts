@@ -1,6 +1,6 @@
-import type { PaginatedResult } from '~/types/api'
+import type { PaginatedResult } from '~/api/types'
 import type { ApiToken, ApiTokenCreated, ApiTokenSave } from '~/types/api-token'
-import { useHttp } from '~/api/http.ts'
+import { useHttp } from '~/api/http'
 
 export function useApiTokensApi() {
   const http = useHttp()
