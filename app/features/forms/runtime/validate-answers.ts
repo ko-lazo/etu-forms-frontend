@@ -1,4 +1,4 @@
-import type { FormPage } from './form-schema'
+import type { FormPage } from '../schema/form-schema'
 import type { FormAnswers } from './answers'
 import { isEmptyAnswer } from './answers'
 

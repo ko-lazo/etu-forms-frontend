@@ -1,8 +1,14 @@
-import type { FormAnswers } from '~/features/forms/schema/answers'
+import type { FormAnswers } from './answers'
 
 export interface FormRuntimeDraft {
   answers: FormAnswers
   submitted: boolean
+}
+
+export interface FormRuntimePersistence {
+  loadDraft?: () => Promise<FormRuntimeDraft | null>
+  saveDraft?: (answers: FormAnswers) => Promise<void>
+  submit: (answers: FormAnswers) => Promise<void>
 }
 
 export class AnswersRejectedError extends Error {
@@ -13,20 +19,5 @@ export class AnswersRejectedError extends Error {
 
     this.name = 'AnswersRejectedError'
     this.fieldErrors = fieldErrors
-  }
-}
-
-export interface FormRuntimePersistence {
-  loadDraft?: () => Promise<FormRuntimeDraft | null>
-  saveDraft?: (answers: FormAnswers) => Promise<void>
-  submit: (answers: FormAnswers) => Promise<void>
-}
-
-/**
- * Предпросмотр формы
- */
-export function createPreviewPersistence(): FormRuntimePersistence {
-  return {
-    submit: () => Promise.resolve()
   }
 }

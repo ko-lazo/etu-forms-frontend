@@ -1,5 +1,8 @@
 import type { Schemas } from '~/api/types'
+
 export type FormAnswerValue = Schemas['FormResponseAnswer']
+
+/** Заполненные поля формы: «имя элемента схемы → значение» */
 export type FormAnswers = Record<string, FormAnswerValue>
 
 export function isEmptyAnswer(value: unknown): boolean {

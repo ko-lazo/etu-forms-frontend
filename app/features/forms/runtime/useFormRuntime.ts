@@ -1,10 +1,10 @@
 import type { MaybeRefOrGetter } from 'vue'
-import type { FormPage, FormSchema } from '~/features/forms/schema/form-schema'
-import type { FormAnswers, FormAnswerValue } from '~/features/forms/schema/answers'
+import type { FormPage, FormSchema } from '../schema/form-schema'
+import type { FormAnswers, FormAnswerValue } from './answers'
 import type { FormRuntimePersistence } from './persistence'
 import { AnswersRejectedError } from './persistence'
-import { evaluateCondition } from '~/features/forms/schema/evaluate'
-import { validateRequiredAnswers } from '~/features/forms/schema/validate'
+import { evaluateCondition } from './evaluate-condition'
+import { validateRequiredAnswers } from './validate-answers'
 
 const AUTOSAVE_DELAY = 800
 
@@ -12,7 +12,7 @@ export type FormRuntimeSaveState = 'idle' | 'saving' | 'saved'
 
 interface UseFormRuntimeOptions {
   schema: MaybeRefOrGetter<FormSchema | null | undefined>
-  persistence: FormRuntimePersistence
+  persistence?: FormRuntimePersistence
   autosaveDelay?: number
 }
 
@@ -40,7 +40,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   let saveTimeout: ReturnType<typeof setTimeout> | undefined
 
   function scheduleSave() {
-    if (!persistence.saveDraft) return
+    if (!persistence?.saveDraft) return
 
     saveState.value = 'saving'
     clearTimeout(saveTimeout)
@@ -48,7 +48,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   }
 
   async function saveDraft() {
-    if (!persistence.saveDraft) return
+    if (!persistence?.saveDraft) return
 
     try {
       await persistence.saveDraft({ ...answers.value })
@@ -80,7 +80,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
   }
 
   async function loadDraft() {
-    const draft = await persistence.loadDraft?.()
+    const draft = await persistence?.loadDraft?.()
     if (!draft) return
 
     answers.value = { ...answers.value, ...draft.answers }
@@ -94,7 +94,7 @@ export function useFormRuntime(options: UseFormRuntimeOptions) {
 
     submitting.value = true
     try {
-      await persistence.submit({ ...answers.value })
+      await persistence?.submit({ ...answers.value })
       submitted.value = true
       return true
     } catch (error) {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
 import type { FormPage } from '~/features/forms/schema/form-schema'
-import type { FormAnswers } from '~/features/forms/schema/answers'
+import type { FormAnswers } from '~/features/forms/runtime/answers'
 
 const props = withDefaults(defineProps<{
   pages: FormPage[]

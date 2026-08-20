@@ -1,9 +1,9 @@
-import type { Condition, ConditionRule } from './condition'
+import type { Condition, ConditionRule } from '../schema/condition'
 import { isEmptyAnswer } from './answers'
 
 type Answers = Record<string, unknown>
 
-function isRule(condition: Condition): condition is ConditionRule {
+export function isRule(condition: Condition): condition is ConditionRule {
   return 'field' in condition
 }
 
@@ -39,18 +39,6 @@ function evaluateRule(rule: ConditionRule, answers: Answers): boolean {
       if (Array.isArray(actual)) return !actual.includes(String(rule.value))
       return !String(actual ?? '').includes(String(rule.value ?? ''))
   }
-}
-
-export function renameConditionField(condition: Condition | undefined, from: string, to: string): void {
-  if (!condition) return
-
-  if (isRule(condition)) {
-    if (condition.field === from) condition.field = to
-    return
-  }
-
-  const children = 'and' in condition ? condition.and : condition.or
-  children.forEach(child => renameConditionField(child, from, to))
 }
 
 export function evaluateCondition(condition: Condition | undefined, answers: Answers): boolean {
