@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { ApiTokenCreated } from '~/types/api-token'
-import { useApiTokensApi } from '~/api/api-token.ts'
+import { useApiTokensApi } from '~/features/api-tokens/api'
 
 definePageMeta({ layout: 'dashboard', middleware: 'auth', title: 'API токены' })
 
@@ -15,30 +14,6 @@ const tokens = computed(() => data.value?.data ?? [])
 const isEmpty = computed(() => status.value === 'success' && tokens.value.length === 0)
 
 const isCreateOpen = ref(false)
-const newTokenName = ref('')
-const creating = ref(false)
-const createdToken = ref<ApiTokenCreated | null>(null)
-
-async function createToken() {
-  if (!newTokenName.value.trim()) return
-
-  creating.value = true
-  try {
-    createdToken.value = await tokensApi.create({ name: newTokenName.value.trim(), expiresAt: null })
-    newTokenName.value = ''
-    await refresh()
-  } catch {
-    toast.add({ title: 'Не удалось создать токен', color: 'error' })
-  } finally {
-    creating.value = false
-  }
-}
-
-function closeCreateModal() {
-  isCreateOpen.value = false
-  createdToken.value = null
-}
-
 const removing = ref<string | null>(null)
 
 async function removeToken(id: string) {
@@ -52,20 +27,6 @@ async function removeToken(id: string) {
   } finally {
     removing.value = null
   }
-}
-
-const copied = ref(false)
-
-async function copy(text: string) {
-  await navigator.clipboard.writeText(text)
-  copied.value = true
-  setTimeout(() => {
-    copied.value = false
-  }, 2000)
-}
-
-function formatDate(value: string | null) {
-  return value ? new Date(value).toLocaleString('ru-RU') : '—'
 }
 </script>
 
@@ -157,11 +118,8 @@ function formatDate(value: string | null) {
             {{ token.name }}
           </p>
           <p class="mt-0.5 text-sm text-muted">
-            Создан {{ formatDate(token.createdAt) }} ·
-            последнее использование: {{ formatDate(token.lastUsedAt) }}
-            <template v-if="token.expiresAt">
-              · истекает {{ formatDate(token.expiresAt) }}
-            </template>
+            Создан {{ formatDateTime(token.createdAt) }} ·
+            {{ token.expiresAt ? `действует до ${formatDateTime(token.expiresAt)}` : 'бессрочный' }}
           </p>
         </div>
 
@@ -176,76 +134,9 @@ function formatDate(value: string | null) {
       </li>
     </ul>
 
-    <UModal
+    <ApiTokenCreateModal
       v-model:open="isCreateOpen"
-      title="Новый API токен"
-      @update:open="(v) => !v && closeCreateModal()"
-    >
-      <template #body>
-        <div
-          v-if="!createdToken"
-          class="space-y-4"
-        >
-          <UFormField
-            label="Название"
-            required
-          >
-            <UInput
-              v-model="newTokenName"
-              placeholder="Например, Корпоративный сайт"
-              class="w-full"
-              @keyup.enter="createToken"
-            />
-          </UFormField>
-        </div>
-
-        <div
-          v-else
-          class="space-y-3"
-        >
-          <UAlert
-            color="warning"
-            variant="subtle"
-            icon="i-lucide-triangle-alert"
-            title="Скопируйте токен сейчас — он больше не будет показан"
-          />
-
-          <div class="flex items-center gap-2 rounded-lg border border-default bg-elevated/50 p-3">
-            <code class="flex-1 truncate text-sm">{{ createdToken.token }}</code>
-            <UButton
-              :icon="copied ? 'i-lucide-check' : 'i-lucide-copy'"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              @click="copy(createdToken.token)"
-            />
-          </div>
-        </div>
-      </template>
-
-      <template #footer>
-        <template v-if="!createdToken">
-          <UButton
-            color="neutral"
-            variant="ghost"
-            @click="isCreateOpen = false"
-          >
-            Отмена
-          </UButton>
-          <UButton
-            :loading="creating"
-            @click="createToken"
-          >
-            Создать
-          </UButton>
-        </template>
-        <UButton
-          v-else
-          @click="closeCreateModal"
-        >
-          Готово
-        </UButton>
-      </template>
-    </UModal>
+      @created="refresh()"
+    />
   </UContainer>
 </template>
