@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { EditorElement } from '~/types/form/editor'
-import { metaFor } from './element-meta.ts'
+import type { EditorElement } from '~/features/forms/editor/editor-model'
+import { metaFor } from '~/features/forms/editor/element-types'
 
 defineProps<{
   element: EditorElement

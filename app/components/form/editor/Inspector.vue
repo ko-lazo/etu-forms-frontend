@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { EditorElement } from '~/types/form/editor'
-import { metaFor } from './element-meta.ts'
+import type { EditorElement } from '~/features/forms/editor/editor-model'
+import { metaFor } from '~/features/forms/editor/element-types'
 
 const element = defineModel<EditorElement | null>({ required: true })
 
@@ -38,7 +38,7 @@ const meta = computed(() => (element.value ? metaFor(element.value.type) : null)
     </div>
 
     <div class="flex-1 overflow-y-auto p-4 sm:p-6">
-      <FormBuilderElementEditor
+      <FormEditorElementEditor
         v-if="element"
         v-model="element"
         :available-fields="availableFields"

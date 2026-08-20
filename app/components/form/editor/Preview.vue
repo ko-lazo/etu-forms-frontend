@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { EditorModel } from '~/types/form/editor'
-import { createPreviewPersistence } from '~/features/forms/runtime/persistence'
+import type { EditorModel } from '~/features/forms/editor/editor-model'
 import { useFormRuntime } from '~/features/forms/runtime/useFormRuntime'
 
 const props = defineProps<{
@@ -17,8 +16,7 @@ const {
   submit,
   reset
 } = useFormRuntime({
-  schema: () => props.model.schema,
-  persistence: createPreviewPersistence()
+  schema: () => props.model.schema
 })
 
 const renderer = ref<{ scrollToFirstError: () => void } | null>(null)

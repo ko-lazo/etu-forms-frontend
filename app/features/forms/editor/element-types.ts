@@ -1,13 +1,29 @@
 import type { FormElementType } from '~/features/forms/schema/form-schema'
-import type { EditorElement } from '~/types/form/editor'
+import type { EditorElement } from '~/features/forms/editor/editor-model'
 import { createUid } from '~/utils/uid.ts'
-import { applyValidationDefaults } from '~/utils/form-editor'
 
 interface ElementTypeMeta {
   type: FormElementType
   label: string
   icon: string
   hasChoices: boolean
+}
+
+export function applyValidationDefaults(element: EditorElement): EditorElement {
+  switch (element.type) {
+    case 'text':
+    case 'email':
+    case 'textarea':
+    case 'number':
+      element.validation ??= {}
+      break
+
+    case 'file':
+      element.validation ??= { maxFileSizeMb: 5, maxFilesCount: 1 }
+      break
+  }
+
+  return element
 }
 
 export const ELEMENT_TYPES: ElementTypeMeta[] = [
@@ -17,8 +33,10 @@ export const ELEMENT_TYPES: ElementTypeMeta[] = [
   { type: 'number', label: 'Число', icon: 'i-lucide-hash', hasChoices: false },
   { type: 'dropdown', label: 'Выпадающий список', icon: 'i-lucide-chevron-down-circle', hasChoices: true },
   { type: 'radiogroup', label: 'Выбор одного варианта', icon: 'i-lucide-circle-dot', hasChoices: true },
-  { type: 'checkbox', label: 'Выбор нескольких вариантов', icon: 'i-lucide-square-check', hasChoices: true },
-  { type: 'file', label: 'Файл', icon: 'i-lucide-paperclip', hasChoices: false }
+  { type: 'checkbox', label: 'Выбор нескольких вариантов', icon: 'i-lucide-square-check', hasChoices: true }
+  // Загрузка файлов ещё не поддержана backend: элемент рендерится и валидируется,
+  // но форму с ним API отвергнет, поэтому в палитре он скрыт.
+  // { type: 'file', label: 'Файл', icon: 'i-lucide-paperclip', hasChoices: false }
 ]
 
 export function metaFor(type: FormElementType): ElementTypeMeta {

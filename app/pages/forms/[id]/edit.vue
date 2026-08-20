@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useFormsApi } from '~/features/forms/api'
+import { formToEditorModel, formatEditorError, parseEditorModel } from '~/features/forms/editor/editor-model'
 
 definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: редактирование' })
 
@@ -22,12 +23,7 @@ const model = ref(form.value ? formToEditorModel(form.value) : null)
 
 const { isDirty, markSaved, reset } = useUnsavedChanges(model)
 
-const formStatus = computed<'draft' | 'published' | 'archived'>(() => {
-  if (!form.value) return 'draft'
-  if (form.value.archivedAt) return 'archived'
-  if (form.value.publishedAt) return 'published'
-  return 'draft'
-})
+
 
 watch(form, (value) => {
   if (value && !model.value) {
@@ -42,12 +38,12 @@ watch(form, (value) => {
 async function save() {
   if (!model.value) return
 
-  const payload = parseEditorModelToPayload(model.value)
+  const payload = parseEditorModel(model.value)
 
   if (!payload.success) {
     toast.add({
       title: 'Форма заполнена некорректно',
-      description: formatValidationError(payload.error),
+      description: formatEditorError(payload.error),
       color: 'error'
     })
     return
@@ -116,12 +112,12 @@ async function copyPublicUrl() {
     </template>
   </UDashboardPanel>
 
-  <FormBuilderMain
+  <FormEditor
     v-else-if="model"
     v-model="model"
     :saving="saving"
     :dirty="isDirty"
-    :status="formStatus"
+    :status="form?.status"
     @submit="save"
     @publish="notImplemented"
     @archive="notImplemented"
@@ -140,5 +136,5 @@ async function copyPublicUrl() {
         </UButton>
       </UTooltip>
     </template>
-  </FormBuilderMain>
+  </FormEditor>
 </template>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { EditorElement, EditorModel, EditorPage } from '~/types/form/editor'
-import type { BuilderMode } from './mode.ts'
-import { renameConditionField } from '~/features/forms/schema/evaluate'
+import type { EditorElement, EditorMode, EditorModel, EditorPage } from '~/features/forms/editor/editor-model'
+import type { FormStatus } from '~/features/forms/types'
+import { renameField } from '~/features/forms/editor/rename-field'
 
 const model = defineModel<EditorModel>({ required: true })
 
 defineProps<{
   saving?: boolean
   dirty?: boolean
-  status?: 'draft' | 'published' | 'archived'
+  status?: FormStatus
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +18,7 @@ const emit = defineEmits<{
   reset: []
 }>()
 
-const mode = ref<BuilderMode>('build')
+const mode = ref<EditorMode>('build')
 const activePageIndex = ref(0)
 const selectedId = ref<string | null>(null)
 
@@ -45,20 +45,8 @@ const selectedElement = computed<EditorElement | null>({
   }
 })
 
-/**
- * Условия ссылаются на поля по `name`, поэтому переименование обновляет ссылки
- * по всей форме
- */
-function renameField({ from, to }: { from: string, to: string }) {
-  const element = selectedElement.value
-  if (!element) return
-
-  element.name = to
-
-  for (const page of model.value.schema.pages) {
-    renameConditionField(page.visibleIf, from, to)
-    page.elements.forEach(item => renameConditionField(item.visibleIf, from, to))
-  }
+function onRename({ from, to }: { from: string, to: string }) {
+  renameField(model.value.schema.pages, from, to)
 }
 </script>
 
@@ -67,7 +55,7 @@ function renameField({ from, to }: { from: string, to: string }) {
     <template #header>
       <AppNavbar />
 
-      <FormBuilderToolbar
+      <FormEditorToolbar
         v-model="model.title"
         v-model:mode="mode"
         :saving="saving"
@@ -81,18 +69,18 @@ function renameField({ from, to }: { from: string, to: string }) {
         <template #actions>
           <slot name="actions" />
         </template>
-      </FormBuilderToolbar>
+      </FormEditorToolbar>
     </template>
 
     <template #body>
-      <FormBuilderCanvas
+      <FormEditorCanvas
         v-if="mode === 'build'"
         v-model:pages="model.schema.pages"
         v-model:page-index="activePageIndex"
         v-model:selected-id="selectedId"
       />
 
-      <FormBuilderPreview
+      <FormEditorPreview
         v-else
         :model="model"
       />
@@ -105,10 +93,10 @@ function renameField({ from, to }: { from: string, to: string }) {
     :default-size="26"
     class="hidden lg:flex"
   >
-    <FormBuilderInspector
+    <FormEditorInspector
       v-model="selectedElement"
       :available-fields="allFields"
-      @rename="renameField"
+      @rename="onRename"
     />
   </UDashboardPanel>
 </template>

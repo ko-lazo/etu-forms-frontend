@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, TabsItem } from '@nuxt/ui'
-import type { BuilderMode } from './mode.ts'
+import type { FormStatus } from '~/features/forms/types'
+import { FORM_STATUS, FORM_STATUS_META } from '~/features/forms/constants'
+import type { EditorMode } from '~/features/forms/editor/editor-model'
 
 const title = defineModel<string>({ required: true })
-const mode = defineModel<BuilderMode>('mode', { required: true })
+const mode = defineModel<EditorMode>('mode', { required: true })
 
 const props = defineProps<{
   saving?: boolean
   dirty?: boolean
-  status?: 'draft' | 'published' | 'archived'
+  status?: FormStatus
 }>()
 
 const emit = defineEmits<{
@@ -19,13 +21,7 @@ const emit = defineEmits<{
   inspect: []
 }>()
 
-const STATUS_META = {
-  draft: { label: 'Черновик', dot: 'bg-neutral-400 dark:bg-neutral-500' },
-  published: { label: 'Опубликована', dot: 'bg-success' },
-  archived: { label: 'В архиве', dot: 'bg-warning' }
-} as const
-
-const statusMeta = computed(() => (props.status ? STATUS_META[props.status] : null))
+const statusMeta = computed(() => (props.status ? FORM_STATUS_META[props.status] : null))
 
 const modeItems: TabsItem[] = [
   { label: 'Конструктор', icon: 'i-lucide-pencil-ruler', value: 'build' },
@@ -35,7 +31,7 @@ const modeItems: TabsItem[] = [
 const menuItems = computed<DropdownMenuItem[][]>(() => {
   const lifecycle: DropdownMenuItem[] = []
 
-  if (props.status === 'draft') {
+  if (props.status === FORM_STATUS.DRAFT) {
     lifecycle.push({
       label: 'Опубликовать',
       icon: 'i-lucide-rocket',
@@ -43,7 +39,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
     })
   }
 
-  if (props.status === 'published') {
+  if (props.status === FORM_STATUS.PUBLISHED) {
     lifecycle.push({
       label: 'В архив',
       icon: 'i-lucide-archive',
@@ -131,7 +127,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
         size="sm"
         class="shrink-0"
         :ui="{ label: 'hidden md:block' }"
-        @update:model-value="(value) => mode = value as BuilderMode"
+        @update:model-value="(value) => mode = value as EditorMode"
       />
 
       <div class="flex shrink-0 items-center gap-3 text-xs">
