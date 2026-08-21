@@ -102,6 +102,7 @@ const { copied, copy } = useCopyToClipboard()
   <FormEditor
     v-else-if="model"
     v-model="model"
+    :form-id="formId"
     :saving="saving"
     :dirty="isDirty"
     :status="form?.status"

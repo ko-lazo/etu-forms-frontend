@@ -1,13 +1,14 @@
 import { toRaw } from 'vue'
 import { z, type ZodError } from 'zod'
-import type { FormElement, FormPage } from '../schema/form-schema'
+import type { FormElement, FormPage, FormSchema } from '../schema/form-schema'
 import type { Form } from '../types'
 import { formSchemaObject } from '../schema/form-schema'
 import { applyValidationDefaults } from './element-types'
 
 export const EDITOR_MODE = {
   BUILD: 'build',
-  PREVIEW: 'preview'
+  PREVIEW: 'preview',
+  AI: 'ai'
 } as const
 
 export type EditorMode = (typeof EDITOR_MODE)[keyof typeof EDITOR_MODE]
@@ -51,14 +52,16 @@ export function formToEditorModel(form: Form): EditorModel {
   return {
     id: form.id,
     title: form.title,
-    schema: {
-      pages: form.schema.pages.map(page => ({
-        ...page,
-        elements: page.elements.map(element => applyValidationDefaults({ ...element, _uid: createUid() }))
-      }))
-    },
+    schema: { pages: schemaToEditorPages(form.schema) },
     settings: form.settings
   }
+}
+
+export function schemaToEditorPages(schema: FormSchema): EditorPage[] {
+  return schema.pages.map(page => ({
+    ...page,
+    elements: page.elements.map(element => applyValidationDefaults({ ...element, _uid: createUid() }))
+  }))
 }
 
 /**
