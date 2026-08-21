@@ -6,7 +6,7 @@ const { user, logout } = useAuth()
 
 const navigation: NavigationMenuItem[] = [
   { label: 'Формы', icon: 'i-lucide-file-text', to: '/forms' },
-  { label: 'Задачи', icon: 'i-lucide-loader', to: '/jobs' },
+  { label: 'Задачи', icon: 'i-lucide-history', to: '/jobs' },
   { label: 'API токены', icon: 'i-lucide-key-round', to: '/tokens' }
 ]
 
