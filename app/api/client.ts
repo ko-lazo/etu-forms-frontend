@@ -30,9 +30,9 @@ export function useApi() {
 
       throw new ApiError(
         response.status,
-        body ?? {
-          message: 'Произошла ошибка при выполнении запроса'
-        }
+        typeof body?.message === 'string'
+          ? body
+          : { message: 'Произошла ошибка при выполнении запроса' }
       )
     }
   })
