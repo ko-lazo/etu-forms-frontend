@@ -46,10 +46,21 @@ const userMenuItems = [
       </NuxtLink>
     </template>
 
-    <UNavigationMenu
-      :items="navigation"
-      orientation="vertical"
-    />
+    <template #default="{ collapsed }">
+      <UDashboardSearchButton
+        label="Поиск..."
+        :collapsed="collapsed"
+        :kbds="['ctrl', 's']"
+        tooltip
+      />
+
+      <UNavigationMenu
+        :items="navigation"
+        orientation="vertical"
+      />
+
+      <AppSearch />
+    </template>
 
     <template #footer="{ collapsed }">
       <UDropdownMenu
