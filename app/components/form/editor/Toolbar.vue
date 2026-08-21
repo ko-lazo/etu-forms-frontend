@@ -138,25 +138,24 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
       />
 
       <div class="flex shrink-0 items-center gap-3 text-xs">
-        <span
+        <UBadge
           v-if="statusMeta"
-          class="inline-flex items-center gap-1.5 rounded-full bg-elevated px-2 py-0.5 font-medium text-muted"
+          variant="soft"
+          color="neutral"
         >
-          <span
-            class="size-1.5 rounded-full"
-            :class="statusMeta.dot"
-          />
           {{ statusMeta.label }}
-        </span>
+        </UBadge>
 
         <UTooltip
           v-if="dirty"
           text="Есть несохранённые изменения"
         >
-          <span class="inline-flex items-center gap-1.5 font-medium text-warning">
-            <span class="size-1.5 rounded-full bg-warning" />
-            <span class="hidden md:inline">Не сохранено</span>
-          </span>
+          <UBadge
+            color="warning"
+            variant="soft"
+          >
+            Не сохранено
+          </UBadge>
         </UTooltip>
       </div>
     </div>
