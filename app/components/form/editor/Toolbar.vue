@@ -3,6 +3,7 @@ import type { DropdownMenuItem, TabsItem } from '@nuxt/ui'
 import type { FormStatus } from '~/features/forms/types'
 import { FORM_STATUS, FORM_STATUS_META } from '~/features/forms/constants'
 import type { EditorMode } from '~/features/forms/editor/editor-model'
+import { EDITOR_MODE } from '~/features/forms/editor/editor-model'
 
 const title = defineModel<string>({ required: true })
 const mode = defineModel<EditorMode>('mode', { required: true })
@@ -24,8 +25,14 @@ const emit = defineEmits<{
 const statusMeta = computed(() => (props.status ? FORM_STATUS_META[props.status] : null))
 
 const modeItems: TabsItem[] = [
-  { label: 'Конструктор', icon: 'i-lucide-pencil-ruler', value: 'build' },
-  { label: 'Предпросмотр', icon: 'i-lucide-eye', value: 'preview' }
+  { label: 'Конструктор', icon: 'i-lucide-pencil-ruler', value: EDITOR_MODE.BUILD },
+  { label: 'Предпросмотр', icon: 'i-lucide-eye', value: EDITOR_MODE.PREVIEW },
+  {
+    label: 'ИИ-конструктор',
+    icon: 'i-lucide-sparkles',
+    value: EDITOR_MODE.AI,
+    badge: { label: 'бета', color: 'dark', variant: 'subtle' }
+  }
 ]
 
 const menuItems = computed<DropdownMenuItem[][]>(() => {

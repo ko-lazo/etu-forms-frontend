@@ -33,13 +33,13 @@ export function useAiConstructor(options: UseAiConstructorOptions) {
     refresh: refreshLimit
   } = useAsyncData<AiLimit>('ai-limit', () => api.limit())
 
-  const exhausted = computed(() => Boolean(limit.value && limit.value.remaining <= 0))
+  const limitReached = computed(() => Boolean(limit.value && limit.value.remaining <= 0))
 
   const canSend = computed(() =>
     Boolean(toValue(options.formId))
     && prompt.value.trim().length > 0
     && !generating.value
-    && !exhausted.value
+    && !limitReached.value
   )
 
   function push(message: Omit<AiMessage, 'id'>) {
@@ -78,7 +78,7 @@ export function useAiConstructor(options: UseAiConstructorOptions) {
     limit,
     limitStatus,
     limitError,
-    exhausted,
+    limitReached,
     canSend,
     send,
     refreshLimit
