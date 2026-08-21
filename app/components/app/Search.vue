@@ -82,6 +82,11 @@ const groups = computed<CommandPaletteGroup<CommandPaletteItem>[]>(() => [
     label: 'Разделы',
     items: [
       {
+        label: 'Задачи',
+        icon: 'i-lucide-history',
+        to: '/jobs'
+      },
+      {
         label: 'API токены',
         icon: 'i-lucide-key-round',
         to: '/tokens'
