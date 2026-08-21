@@ -16,6 +16,8 @@ export interface HttpClient {
   patch<TResponse>(url: string, body?: RequestBody, options?: RequestOptions): Promise<TResponse>
 
   delete<TResponse>(url: string, options?: RequestOptions): Promise<TResponse>
+
+  download(url: string, options?: RequestOptions): Promise<Blob>
 }
 
 export function useHttp(): HttpClient {
@@ -36,6 +38,10 @@ export function useHttp(): HttpClient {
 
     delete<TResponse>(url: string, options?: RequestOptions) {
       return api<TResponse>(url, { ...options, method: 'DELETE' })
+    },
+
+    download(url: string, options?: RequestOptions) {
+      return api<Blob>(url, { ...options, responseType: 'blob' })
     }
   }
 }
