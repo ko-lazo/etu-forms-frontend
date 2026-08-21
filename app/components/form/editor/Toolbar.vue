@@ -31,7 +31,7 @@ const modeItems: TabsItem[] = [
     label: 'ИИ-конструктор',
     icon: 'i-lucide-sparkles',
     value: EDITOR_MODE.AI,
-    badge: { label: 'бета', color: 'dark', variant: 'subtle' }
+    badge: { label: 'бета', variant: 'subtle', class: 'bg-transparent ring-0 text-neutral' }
   }
 ]
 
