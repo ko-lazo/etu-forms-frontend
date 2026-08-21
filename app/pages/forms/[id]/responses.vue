@@ -90,14 +90,18 @@ function openDetails(response: FormResponse) {
         </p>
       </div>
 
-      <UButton
-        :to="`/forms/${formId}/edit`"
-        icon="i-lucide-pencil"
-        color="neutral"
-        variant="ghost"
-      >
-        Редактировать форму
-      </UButton>
+      <div class="flex items-center gap-2">
+        <FormResponseExport :form-id="formId" />
+
+        <UButton
+          :to="`/forms/${formId}/edit`"
+          icon="i-lucide-pencil"
+          color="neutral"
+          variant="ghost"
+        >
+          Редактировать форму
+        </UButton>
+      </div>
     </div>
 
     <FormResponseFilters
