@@ -50,6 +50,19 @@ export const JOB_STATUS_META: Record<JobStatus, JobStatusMeta> = {
   }
 }
 
+export const JOB_STATUS_FILTER_ALL = 'all'
+
+export const JOB_STATUS_FILTER_ITEMS = [
+  {
+    label: 'Все',
+    value: JOB_STATUS_FILTER_ALL
+  },
+  ...Object.values(JOB_STATUS).map(status => ({
+    label: JOB_STATUS_META[status].label,
+    value: status
+  }))
+]
+
 export const JOB_STATUS_REFRESH_MS = 1500
 
 export const EXPORT_FILE_NAME = 'export.xlsx'
