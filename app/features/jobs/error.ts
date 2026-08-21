@@ -20,7 +20,7 @@ export function toJobFailureMessage(failure: JobFailure | null): string {
   return FAILURE_MESSAGES[failure.code] ?? FAILURE_FALLBACK
 }
 
-const REQUEST_FALLBACK = 'Не удалось выполнить действие с задачей'
+const REQUEST_FALLBACK = 'Задача недоступна'
 
 const REQUEST_MESSAGES: Partial<Record<ErrorCode, string>> = {
   BAD_REQUEST: 'Задача уже завершена',
