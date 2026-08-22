@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { FormTransition } from '~/features/forms/constants'
 import { useFormsApi } from '~/features/forms/api'
+import { useFormLifecycle } from '~/features/forms/useFormLifecycle'
 import { formToEditorModel, formatEditorError, parseEditorModel } from '~/features/forms/editor/editor-model'
 
 definePageMeta({ layout: 'builder', middleware: 'auth', title: 'Формы: редактирование' })
@@ -59,11 +61,12 @@ async function save() {
   }
 }
 
-function notImplemented() {
-  toast.add({
-    title: 'Soon',
-    color: 'neutral'
-  })
+const { pendingTransition, runTransition } = useFormLifecycle(formId)
+
+async function changeStatus(transition: FormTransition) {
+  const updated = await runTransition(transition)
+
+  if (updated) form.value = updated
 }
 
 const publicUrl = computed(() => {
@@ -106,9 +109,9 @@ const { copied, copy } = useCopyToClipboard()
     :saving="saving"
     :dirty="isDirty"
     :status="form?.status"
+    :pending-transition="pendingTransition"
     @submit="save"
-    @publish="notImplemented"
-    @archive="notImplemented"
+    @transition="changeStatus"
     @reset="reset"
   >
     <template #actions>

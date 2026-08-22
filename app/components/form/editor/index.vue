@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EditorElement, EditorMode, EditorModel, EditorPage } from '~/features/forms/editor/editor-model'
 import type { FormStatus } from '~/features/forms/types'
+import type { FormTransition } from '~/features/forms/constants'
 import type { FormSchema } from '~/features/forms/schema/form-schema'
 import { EDITOR_MODE, schemaToEditorPages } from '~/features/forms/editor/editor-model'
 import { renameField } from '~/features/forms/editor/rename-field'
@@ -12,12 +13,12 @@ defineProps<{
   saving?: boolean
   dirty?: boolean
   status?: FormStatus
+  pendingTransition?: FormTransition | null
 }>()
 
 const emit = defineEmits<{
   submit: []
-  publish: []
-  archive: []
+  transition: [FormTransition]
   reset: []
 }>()
 
@@ -70,9 +71,9 @@ function onApplySchema(schema: FormSchema) {
         :saving="saving"
         :dirty="dirty"
         :status="status"
+        :pending-transition="pendingTransition"
         @submit="emit('submit')"
-        @publish="emit('publish')"
-        @archive="emit('archive')"
+        @transition="(transition) => emit('transition', transition)"
         @reset="emit('reset')"
       >
         <template #actions>

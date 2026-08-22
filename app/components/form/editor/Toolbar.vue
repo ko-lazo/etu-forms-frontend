@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem, TabsItem } from '@nuxt/ui'
 import type { FormStatus } from '~/features/forms/types'
-import { FORM_STATUS, FORM_STATUS_META } from '~/features/forms/constants'
+import type { FormTransition } from '~/features/forms/constants'
+import { FORM_STATUS_META, FORM_TRANSITION, FORM_TRANSITION_META, FORM_TRANSITIONS } from '~/features/forms/constants'
 import type { EditorMode } from '~/features/forms/editor/editor-model'
 import { EDITOR_MODE } from '~/features/forms/editor/editor-model'
 
@@ -12,12 +13,12 @@ const props = defineProps<{
   saving?: boolean
   dirty?: boolean
   status?: FormStatus
+  pendingTransition?: FormTransition | null
 }>()
 
 const emit = defineEmits<{
   submit: []
-  publish: []
-  archive: []
+  transition: [FormTransition]
   reset: []
   inspect: []
 }>()
@@ -36,23 +37,18 @@ const modeItems: TabsItem[] = [
 ]
 
 const menuItems = computed<DropdownMenuItem[][]>(() => {
-  const lifecycle: DropdownMenuItem[] = []
+  const transitions = props.status ? FORM_TRANSITIONS[props.status] : []
 
-  if (props.status === FORM_STATUS.DRAFT) {
-    lifecycle.push({
-      label: 'Опубликовать',
-      icon: 'i-lucide-rocket',
-      onSelect: () => emit('publish')
-    })
-  }
-
-  if (props.status === FORM_STATUS.PUBLISHED) {
-    lifecycle.push({
-      label: 'В архив',
-      icon: 'i-lucide-archive',
-      onSelect: () => emit('archive')
-    })
-  }
+  const lifecycle = transitions.map<DropdownMenuItem>(transition => ({
+    label: FORM_TRANSITION_META[transition].label,
+    icon: FORM_TRANSITION_META[transition].icon,
+    description: props.dirty && transition === FORM_TRANSITION.PUBLISH
+      ? 'Опубликуется последняя сохранённая версия'
+      : undefined,
+    loading: props.pendingTransition === transition,
+    disabled: Boolean(props.pendingTransition),
+    onSelect: () => emit('transition', transition)
+  }))
 
   const changes: DropdownMenuItem[] = []
 
@@ -119,6 +115,7 @@ const menuItems = computed<DropdownMenuItem[][]>(() => {
             <UButton
               icon="i-lucide-chevron-down"
               :variant="dirty ? 'solid' : 'soft'"
+              :loading="Boolean(pendingTransition)"
               aria-label="Другие действия"
             />
           </UDropdownMenu>
